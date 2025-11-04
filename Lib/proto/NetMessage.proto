@@ -1,0 +1,60 @@
+package ProtoMessage;
+//定义结构
+message PlayerInfo {
+	required int32 seatID = 1;//座位ID
+	required string playerName = 2;
+	required bool isReady = 3;
+}
+
+
+
+
+
+//定义消息
+message NetMessage {
+	required NetMessageRequest Request = 1;
+	required NetMessageResponse Response = 2;
+}
+message NetMessageRequest {
+	required PlayerJoinRoomRequest playerJoinRoom = 1;
+	required ChangeReadyRequest changeReady = 2;
+}
+message NetMessageResponse {
+	required PlayerJoinRoomResponse PlayerJoinRoom = 1;
+	required AddPlayerToRoomResponse AddPlayerToRoom = 2;
+	required ChangeReadyResponse changeReady = 3;
+	required LeaveRoomResponse leaveRoom = 4;
+}
+
+
+
+
+
+
+message PlayerJoinRoomRequest {
+	required string playerName = 1;
+}
+message PlayerJoinRoomResponse {
+	required bool successJoin = 1;
+	required int32 selfSeatID = 2;
+	required uint64 selfNetID = 3;//用于处理网络断开事件
+	repeated PlayerInfo allPlayers = 4;
+}
+message AddPlayerToRoomResponse {
+	required PlayerInfo player = 1;
+}
+
+
+message ChangeReadyRequest {
+	required bool readyState = 1;
+}
+message ChangeReadyResponse {
+	required int32 seatID = 1;
+	required bool readyState = 2;
+}
+
+
+
+message LeaveRoomResponse {
+	required int32 triggerSeatID = 1;	
+}

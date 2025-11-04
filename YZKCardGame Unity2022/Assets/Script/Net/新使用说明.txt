@@ -1,0 +1,286 @@
+========================================
+基于订阅模式的消息系统使用说明
+========================================
+
+一、系统概述
+----------------------------------------
+本消息系统使用订阅模式。系统会自动检查消息中的各个字段，并分发到对应的订阅处理器。
+
+二、核心类说明
+----------------------------------------
+1. MessageDistributer<T>  - 消息分发者，管理订阅和事件触发
+2. MessageDispatch<T>      - 消息分发器，自动检查消息字段并分发
+3. NetMessage              - 主消息类
+4. NetMessageRequest       - 请求消息容器
+5. NetMessageResponse      - 响应消息容器
+
+三、订阅和取消订阅
+----------------------------------------
+
+【订阅消息】
+-----------------
+使用泛型订阅特定类型的消息：
+
+void Start()
+{
+    // 订阅响应消息
+    JFYNetManager.Instance.Subscribe<MapCharacterLeaveResponse>(OnCharacterLeave);
+    JFYNetManager.Instance.Subscribe<GameStartResponse>(OnGameStart);
+    
+    // 订阅请求消息
+    JFYNetManager.Instance.Subscribe<PlayerJoinRoomRequest>(OnPlayerJoinRequest);
+}
+
+// 消息处理器签名：void HandlerName(ulong senderId, MessageType message)
+void OnCharacterLeave(ulong senderId, MapCharacterLeaveResponse message)
+{
+    Debug.Log($"角色 {message.characterDBID} 离开，发送者: {senderId}");
+    // 处理逻辑...
+}
+
+
+【取消订阅】
+-----------------
+void OnDestroy()
+{
+    JFYNetManager.Instance.Unsubscribe<MapCharacterLeaveResponse>(OnCharacterLeave);
+    JFYNetManager.Instance.Unsubscribe<GameStartResponse>(OnGameStart);
+}
+
+
+【清除所有订阅】
+-----------------
+JFYNetManager.Instance.ClearAllSubscriptions();
+
+
+四、发送消息
+----------------------------------------
+
+【发送消息给所有玩家】
+-----------------
+NetMessage message = new NetMessage();
+message.Response = new NetMessageResponse();
+message.Response.mapCharacterLeave = new MapCharacterLeaveResponse();
+message.Response.mapCharacterLeave.characterDBID = 12345;
+message.Response.mapCharacterLeave.reason = "玩家离开";
+
+JFYNetManager.Instance.SendMessageToAll(message);
+
+
+【发送消息给指定玩家】
+-----------------
+JFYNetManager.Instance.SendMessageToPlayer(message, targetPlayerId);
+
+
+五、完整使用示例
+----------------------------------------
+
+【示例1：角色离开】
+-----------------
+// 1. 订阅消息
+void Start()
+{
+    JFYNetManager.Instance.Subscribe<MapCharacterLeaveResponse>(OnCharacterLeave);
+}
+
+// 2. 处理消息
+void OnCharacterLeave(ulong senderId, MapCharacterLeaveResponse message)
+{
+    Debug.Log($"角色 {message.characterDBID} 离开");
+    // 从场景中移除角色
+}
+
+// 3. 发送消息
+void SendLeaveMessage(ulong characterId)
+{
+    NetMessage message = new NetMessage();
+    message.Response = new NetMessageResponse();
+    message.Response.mapCharacterLeave = new MapCharacterLeaveResponse();
+    message.Response.mapCharacterLeave.characterDBID = characterId;
+    
+    JFYNetManager.Instance.SendMessageToAll(message);
+}
+
+// 4. 取消订阅
+void OnDestroy()
+{
+    if (JFYNetManager.Instance != null)
+    {
+        JFYNetManager.Instance.Unsubscribe<MapCharacterLeaveResponse>(OnCharacterLeave);
+    }
+}
+
+
+【示例2：游戏开始】
+-----------------
+void Start()
+{
+    JFYNetManager.Instance.Subscribe<GameStartResponse>(OnGameStart);
+}
+
+void OnGameStart(ulong senderId, GameStartResponse message)
+{
+    Debug.Log($"游戏开始！种子: {message.randomSeed}");
+    Random.InitState(message.randomSeed);
+    // 初始化游戏...
+}
+
+void SendGameStart()
+{
+    NetMessage message = new NetMessage();
+    message.Response = new NetMessageResponse();
+    message.Response.gameStart = new GameStartResponse();
+    message.Response.gameStart.startTime = System.DateTime.UtcNow.Ticks;
+    message.Response.gameStart.randomSeed = Random.Range(1000, 9999);
+    
+    JFYNetManager.Instance.SendMessageToAll(message);
+}
+
+
+【示例3：卡牌出牌】
+-----------------
+void Start()
+{
+    JFYNetManager.Instance.Subscribe<CardPlayResponse>(OnCardPlay);
+}
+
+void OnCardPlay(ulong senderId, CardPlayResponse message)
+{
+    Debug.Log($"玩家 {message.playerId} 打出卡牌 {message.cardId}");
+    Debug.Log($"目标位置: ({message.targetX}, {message.targetY})");
+    // 播放卡牌动画...
+}
+
+void PlayCard(int cardId, int x, int y)
+{
+    NetMessage message = new NetMessage();
+    message.Response = new NetMessageResponse();
+    message.Response.cardPlay = new CardPlayResponse();
+    message.Response.cardPlay.playerId = Unity.Netcode.NetworkManager.Singleton.LocalClientId;
+    message.Response.cardPlay.cardId = cardId;
+    message.Response.cardPlay.targetX = x;
+    message.Response.cardPlay.targetY = y;
+    
+    JFYNetManager.Instance.SendMessageToAll(message);
+}
+
+
+六、添加新的消息类型
+----------------------------------------
+
+【步骤1：在 NetMessageResponse.cs 或 NetMessageRequest.cs 中添加消息类】
+-----------------
+[Serializable]
+public class CustomGameActionResponse
+{
+    public int actionId;
+    public string actionData;
+}
+
+// 在 NetMessageResponse 中添加字段
+public class NetMessageResponse
+{
+    // ... 现有字段 ...
+    
+    public CustomGameActionResponse customGameAction;
+}
+
+
+【步骤2：在 MessageDispatch.cs 中添加分发逻辑】
+-----------------
+public void Dispatch(T sender, NetMessageResponse message)
+{
+    // ... 现有代码 ...
+    
+    // 添加新消息的分发
+    if (message.customGameAction != null)
+    {
+        MessageDistributer<T>.Instance.RaiseEvent(sender, message.customGameAction);
+    }
+}
+
+
+【步骤3：订阅和使用新消息】
+-----------------
+void Start()
+{
+    JFYNetManager.Instance.Subscribe<CustomGameActionResponse>(OnCustomAction);
+}
+
+void OnCustomAction(ulong senderId, CustomGameActionResponse message)
+{
+    Debug.Log($"自定义动作: {message.actionId}");
+}
+
+void SendCustomAction()
+{
+    NetMessage message = new NetMessage();
+    message.Response = new NetMessageResponse();
+    message.Response.customGameAction = new CustomGameActionResponse();
+    message.Response.customGameAction.actionId = 999;
+    message.Response.customGameAction.actionData = "test";
+    
+    JFYNetManager.Instance.SendMessageToAll(message);
+}
+
+
+七、与旧系统的兼容性
+----------------------------------------
+系统保留了旧的 RegisterMessageHandler/UnregisterMessageHandler 方法，
+如果需要，仍然可以使用旧方式接收所有消息：
+
+void Start()
+{
+    // 旧方式（接收所有消息）
+    JFYNetManager.Instance.RegisterMessageHandler(OnMessageReceived);
+}
+
+void OnMessageReceived(NetMessage message, ulong senderId)
+{
+    // 处理消息...
+}
+
+
+八、消息分发流程
+----------------------------------------
+1. 接收到网络数据
+2. 解包成 NetMessage
+3. 如果 message.Response != null，调用 MessageDispatch.Dispatch(senderId, message.Response)
+4. MessageDispatch 检查 Response 中的每个字段
+5. 如果字段不为 null，调用 MessageDistributer.RaiseEvent(senderId, 该字段)
+6. MessageDistributer 触发所有订阅了该消息类型的处理器
+
+
+九、优势
+----------------------------------------
+? 不需要手动指定 MessageType
+? 类型安全，编译时检查
+? 自动分发，减少样板代码
+? 灵活的订阅/取消订阅机制
+? 支持多个订阅者
+? 易于扩展新消息类型
+
+
+十、注意事项
+----------------------------------------
+1. 每个消息类型只设置一个字段（Response 或 Request 中）
+2. 记得在 MessageDispatch.cs 中添加新消息的分发逻辑
+3. 组件销毁时记得取消订阅，避免内存泄漏
+4. 订阅的处理器签名必须是：void HandlerName(ulong senderId, MessageType message)
+5. 消息类必须是 class 类型（不能是 struct）
+
+
+十一、测试
+----------------------------------------
+将 NewMessageExample.cs 挂载到场景中的 GameObject 上：
+- 它会自动订阅所有消息
+- 可以通过 Inspector 右键菜单测试发送各种消息
+- 查看 Console 输出，观察消息的订阅和分发过程
+
+
+========================================
+版本：2.0（订阅模式）
+创建日期：2025-10-26
+========================================
+
+
