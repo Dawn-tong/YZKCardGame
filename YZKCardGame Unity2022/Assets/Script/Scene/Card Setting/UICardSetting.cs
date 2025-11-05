@@ -16,7 +16,7 @@ public class UICardSetting : MonoBehaviour
 	//scene Panel
 	public void ClickButtonToGoBackTitle() {
 		Debug.Log("Button - Go Back To Title Scene");
-		SceneLoaderManager.Instance.LoadScene("TitleScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.TitleScene);
 	}
 	public void ClickButtonToShowAllCardsPanel() {
 		Debug.Log("Button - Show All Cards Panel");

@@ -16,7 +16,7 @@ public class UIHall : MonoBehaviour
 	{
 		Debug.Log("Button - Creat Room");
 		NetManager.Instance.isHostPlayer = true;
-		SceneLoaderManager.Instance.LoadScene("RoomScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.RoomScene);
 	}
 	public void ClickButtonToJoinRoom()
 	{
@@ -29,11 +29,11 @@ public class UIHall : MonoBehaviour
 		}
 		NetManager.Instance.isHostPlayer = false;
 		NetManager.Instance.JoinRelayRoom(joinNumberInputField.text);
-		SceneLoaderManager.Instance.LoadScene("RoomScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.RoomScene);
 	}
 	public void ClickButtonToReturnTitle()
 	{
 		Debug.Log("Button - Return To Title");
-		SceneLoaderManager.Instance.LoadScene("TitleScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.TitleScene);
 	}
 }

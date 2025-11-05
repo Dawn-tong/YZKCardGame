@@ -12,11 +12,11 @@ public class UITitle : MonoBehaviour
 
 	public void ClickButtonToGameStart() {
 		Debug.Log("Button - Game Start");
-		SceneLoaderManager.Instance.LoadScene("HallScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 	}
 	public void ClickButtonToCardsSetScene() {
 		Debug.Log("Button - Load Cards Set Scene");
-		SceneLoaderManager.Instance.LoadScene("CardSetting");
+		SceneLoaderManager.Instance.LoadScene(Scene.CardSetting);
 	}
 	public void ClickButtonToExitGame() {
 		Debug.Log("Button - Game Exit");

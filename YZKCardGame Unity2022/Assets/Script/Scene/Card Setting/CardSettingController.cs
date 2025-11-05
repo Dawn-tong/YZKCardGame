@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardSettingSceneController : SceneControllerBase
+public class CardSettingController : SceneControllerBase
 {
     public override void OnSceneEnter()
     {

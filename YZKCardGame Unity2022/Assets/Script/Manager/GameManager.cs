@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour
 		Debug.Log("Manager.GameStart - Init");
 		initActions.Add(PlayerManager.Instance.Init);
 		initActions.Add(NetManager.Instance.Init);
-		initActions.Add(SceneLoaderManager.Instance.Init);
+		initActions.Add(SceneLoaderManager.Instance.Init);//需要在CameraDragManager之前
+		initActions.Add(CameraDragManager.Instance.Init);//需要在SceneLoaderManager之后
 		initActions.Add(UIManager.Instance.Init);
 		Debug.Log($"注册了 {initActions.Count} 个待初始化Manager");
 		foreach (var initAction in initActions) {

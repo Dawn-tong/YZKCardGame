@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class SceneControllerBase
-{
+public abstract class SceneControllerBase {
+    public Scene scene;
+
     // 自动生成场景名：类名去掉"Controller"后缀
     string sceneName;
     public virtual string SceneName {
@@ -12,7 +13,7 @@ public abstract class SceneControllerBase
         }
         get {
             if (sceneName == null){
-                sceneName = this.GetType().Name.Replace("Controller", "");
+                sceneName = GetType().Name.Replace("Controller", "");
             }
             return sceneName;
         }
