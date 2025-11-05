@@ -11,7 +11,7 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
     bool initIsFinish = false;
     public void Init()  {
 		// 注册场景控制器
-		RegisterSceneController<CardSettingSceneController>();
+		RegisterSceneController<CardSettingController>();
 		RegisterSceneController<GameSceneController>();
 		RegisterSceneController<HallSceneController>();
 		RegisterSceneController<RoomSceneController>();
@@ -37,6 +37,10 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
 		else {
 			Debug.LogError($"SceneLoaderManager.Init - 场景控制器未注册: {currentSceneName}");
 		}
+        if (onSceneEnterCallbacks.ContainsKey(currentSceneName)) {
+            Debug.Log($"SceneLoaderManager.Init - 调用其他系统触发的场景 {currentSceneName} 的进入回调");
+            onSceneEnterCallbacks[currentSceneName]?.Invoke();
+        }
 	}
     //离开游戏自动运行当前场景离开
 	void OnApplicationQuit() {
