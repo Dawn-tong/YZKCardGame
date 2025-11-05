@@ -37,7 +37,7 @@ public class RoomService
 			NetManager.Instance.OnJoinRoomSuccess += SendPlayerJoinRoomRequest;
 			NetManager.Instance.OnJoinRoomFailed += OnJoinRoomFailed;
 			if (string.IsNullOrEmpty(NetManager.Instance.GetCurrentJoinCode())) {
-				SceneLoaderManager.Instance.LoadScene("HallScene");
+				SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public class RoomService
 	}
 	//加入失败时
 	void OnJoinRoomFailed() {
-		SceneLoaderManager.Instance.LoadScene("HallScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 	}
 	//离开房间时
 	void OnLeaveRoom() {
@@ -69,7 +69,7 @@ public class RoomService
 		PlayerManager.Instance.ClearAllPlayersExpectSelf();
 		PlayerManager.Instance.MoveCurrentPlayerBaseSeatID(0);
 		PlayerManager.Instance.currentPlayer.SetReady(false);
-		SceneLoaderManager.Instance.LoadScene("HallScene");
+		SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 	}
 
 

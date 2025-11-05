@@ -107,13 +107,13 @@ public class NetManager : ManagerBase<NetManager> {
 				Debug.LogError("StartHost() 启动失败！");
 				UIMessagePanel.Instance.AddMessage("房间创建失败，请重试");
 				// 回退到大厅场景
-				SceneLoaderManager.Instance.LoadScene("HallScene");
+				SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 			}
 		}
 		catch (System.Exception e) {
 			Debug.LogError($"创建房间失败: {e.Message}");
 			UIMessagePanel.Instance.AddMessage($"创建房间失败: {e.Message}");
-			SceneLoaderManager.Instance.LoadScene("HallScene");
+			SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 		}
 	}
 	// 加入房间
