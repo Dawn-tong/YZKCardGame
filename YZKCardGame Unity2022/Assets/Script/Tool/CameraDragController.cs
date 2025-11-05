@@ -10,7 +10,11 @@ public class CameraDragController : MonoBehaviour
     [SerializeField] Vector2 leftDownEdge = new Vector2(-10f, -10f);
     [SerializeField] Vector2 rightUpEdge = new Vector2(10f, 10f);
     [Header("拖拽速度")]
-    [SerializeField] float dragSpeed = 150f;
+    [SerializeField] float dragSpeed = 1.5f;
+    [Header("缩放设置")]
+    [SerializeField] float zoomSpeed = 0.8f;
+    [SerializeField] float minZoom = 2f;
+    [SerializeField] float maxZoom = 20f;
     
 
 
@@ -36,6 +40,7 @@ public class CameraDragController : MonoBehaviour
         if (targetCamera == null)
             return;
         HandleDrag();
+        HandleZoom();
     }
     private void HandleDrag() {
         // 鼠标按下开始拖拽
@@ -52,17 +57,8 @@ public class CameraDragController : MonoBehaviour
             Vector3 delta = Input.mousePosition - lastMousePosition;
             // 将屏幕空间的移动转换为世界空间
             Vector3 move = new Vector3(-delta.x, -delta.y, 0) * dragSpeed * Time.deltaTime;
-            // 根据摄像机类型调整移动
-            if (targetCamera.orthographic) {
-                // 正交摄像机
-                move *= targetCamera.orthographicSize * 0.01f;
-            }
-            else {
-                // 透视摄像机
-                move *= 0.01f;
-            }
-            // 应用移动
-            Vector3 newPosition = transform.position + move;
+			move *= targetCamera.orthographicSize;
+			Vector3 newPosition = transform.position + move;
             // 限制在边界内
             newPosition.x = Mathf.Clamp(newPosition.x, leftDownEdge.x, rightUpEdge.x);
             newPosition.y = Mathf.Clamp(newPosition.y, leftDownEdge.y, rightUpEdge.y);
@@ -70,7 +66,19 @@ public class CameraDragController : MonoBehaviour
             lastMousePosition = Input.mousePosition;
         }
     }
-    
+    private void HandleZoom() {
+        // 获取鼠标滚轮输入
+        float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
+        if (scrollDelta > 0.001f) {
+            float newSize = targetCamera.orthographicSize / (1 + scrollDelta * zoomSpeed);
+			targetCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+		}
+        if (scrollDelta < -0.001f) {
+            float newSize = targetCamera.orthographicSize * (1 - scrollDelta * zoomSpeed);
+			targetCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+		}
+    }
+
 
 
 
@@ -84,10 +92,20 @@ public class CameraDragController : MonoBehaviour
         rightUpEdge = rightUp;
     }
     /// <summary>
-    /// 设置拖拽速度
+    /// 设置缩放范围
     /// </summary>
-    public void SetDragSpeed(float speed) {
-        dragSpeed = speed;
+    public void SetZoomRange(float min, float max) {
+        minZoom = min;
+        maxZoom = max;
+        // 立即应用限制到当前摄像机
+        if (targetCamera != null) {
+            if (targetCamera.orthographic) {
+                targetCamera.orthographicSize = Mathf.Clamp(targetCamera.orthographicSize, minZoom, maxZoom);
+            }
+            else {
+                targetCamera.fieldOfView = Mathf.Clamp(targetCamera.fieldOfView, minZoom, maxZoom);
+            }
+        }
     }
 }
 

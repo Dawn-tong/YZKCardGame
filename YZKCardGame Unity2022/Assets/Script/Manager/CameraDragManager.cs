@@ -11,25 +11,29 @@ public class CameraDragManager : ManagerBase<CameraDragManager> {
     public class SceneBoundsConfig {
         public Vector2 leftDownEdge;
         public Vector2 rightUpEdge;
-        public SceneBoundsConfig(Vector2 leftDown, Vector2 rightUp) {
+        public float minZoom;
+        public float maxZoom;
+        public SceneBoundsConfig(Vector2 leftDown, Vector2 rightUp, float min = 2f, float max = 20f) {
             leftDownEdge = leftDown;
             rightUpEdge = rightUp;
+            minZoom = min;
+            maxZoom = max;
         }
     }
     //初始化
     public void Init() {
         Log.IncreasePerfixLength();
         Debug.Log($"{Log.perfix}————        CameraDragManager.Init        ————");
-        RegisterSceneCallbacks(Scene.GameScene,new Vector2(-20f, -15f), new Vector2(20f, 15f));
-        RegisterSceneCallbacks(Scene.CardSetting,new Vector2(-15f, -12f), new Vector2(15f, 12f));
+        RegisterSceneCallbacks(Scene.GameScene, new Vector2(-20f, -15f), new Vector2(20f, 15f), 3f, 15f);
+        RegisterSceneCallbacks(Scene.CardSetting, new Vector2(-15f, -12f), new Vector2(15f, 12f), 2f, 12f);
         Log.ReducePerfixLength();
         GameManager.FinishInit();
     }
     //注册场景回调（通过场景控制器类型自动获取场景名）
-    void RegisterSceneCallbacks(Scene scene,Vector2 leftDownEdge,Vector2 rightUpEdge) {
+    void RegisterSceneCallbacks(Scene scene, Vector2 leftDownEdge, Vector2 rightUpEdge, float minZoom = 2f, float maxZoom = 20f) {
         // 通过创建临时实例获取场景名
-        Debug.Log($"{Log.perfix}设置场景{scene}的边界。左下=({leftDownEdge});右上=({rightUpEdge})");
-        sceneBoundsConfigs.Add(scene, new SceneBoundsConfig(leftDownEdge, rightUpEdge));
+        Debug.Log($"{Log.perfix}设置场景{scene}的边界。左下=({leftDownEdge});右上=({rightUpEdge});缩放范围=[{minZoom}, {maxZoom}]");
+        sceneBoundsConfigs.Add(scene, new SceneBoundsConfig(leftDownEdge, rightUpEdge, minZoom, maxZoom));
         SceneLoaderManager.Instance.RegisterSceneEnterCallback(scene, () => OnSceneEnter(scene));
         SceneLoaderManager.Instance.RegisterSceneLeaveCallback(scene, () => OnSceneLeave(scene));
     }
@@ -62,8 +66,9 @@ public class CameraDragManager : ManagerBase<CameraDragManager> {
         if (sceneBoundsConfigs.ContainsKey(scene)) {
             var config = sceneBoundsConfigs[scene];
             currentController.SetBounds(config.leftDownEdge, config.rightUpEdge);
+            currentController.SetZoomRange(config.minZoom, config.maxZoom);
             currentController.enabled = true;
-            Debug.Log($"{Log.perfix}开启场景{scene}的摄像机拖拽。");
+            Debug.Log($"{Log.perfix}开启场景{scene}的摄像机拖拽和缩放。");
         }
         Log.ReducePerfixLength();
     }
