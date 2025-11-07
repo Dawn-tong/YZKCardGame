@@ -45,31 +45,31 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
         GameManager.OnAllManagersFinishInit -= OnAllManagersFinishInit;
 		initIsFinish = true;
 		if (sceneControllers.ContainsKey(currentScene)) {
-            Debug.Log($"SceneLoaderManager.Init - 调用场景 {currentScene} 的进入回调");
+            Debug.Log($"{Log.perfix}SceneLoaderManager.Init - 调用场景 {currentScene} 的进入回调");
 			sceneControllers[currentScene].OnSceneEnter();
 		}
 		else {
-			Debug.LogError($"SceneLoaderManager.Init - 场景控制器未注册: {currentScene}");
+			Debug.LogError($"{Log.perfix}SceneLoaderManager.Init - 场景控制器未注册: {currentScene}");
 		}
         if (onSceneEnterCallbacks.ContainsKey(currentScene)) {
-            Debug.Log($"SceneLoaderManager.Init - 调用其他系统触发的场景 {currentScene} 的进入回调");
+            Debug.Log($"{Log.perfix}SceneLoaderManager.Init - 调用其他系统触发的场景 {currentScene} 的进入回调");
             onSceneEnterCallbacks[currentScene]?.Invoke();
         }
 	}
     //离开游戏自动运行当前场景离开
 	void OnApplicationQuit() {
 		if (sceneControllers.ContainsKey(currentScene)) {
-			Debug.Log($"SceneLoaderManager.OnApplicationQuit - 调用场景 {currentScene} 的离开回调");
+			Debug.Log($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 调用场景 {currentScene} 的离开回调");
 			sceneControllers[currentScene].OnSceneLeave();
 		}
 		else {
-			Debug.LogWarning($"SceneLoaderManager.OnApplicationQuit - 场景 {currentScene} 未注册离开回调");
+			Debug.LogWarning($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 场景 {currentScene} 未注册离开回调");
 		}
 
 		// 清理资源
 		sceneControllers.Clear();
 		onProgress = null;
-		Debug.Log("SceneLoaderManager.OnApplicationQuit - 场景加载管理器清理完成");
+		Debug.Log($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 场景加载管理器清理完成");
 	}
 
 

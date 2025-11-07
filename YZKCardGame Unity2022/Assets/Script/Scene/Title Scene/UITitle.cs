@@ -11,15 +11,15 @@ public class UITitle : MonoBehaviour
 	public Button gameExitButton;
 
 	public void ClickButtonToGameStart() {
-		Debug.Log("Button - Game Start");
+		Debug.Log("按钮 - 游戏开始");
 		SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 	}
 	public void ClickButtonToCardsSetScene() {
-		Debug.Log("Button - Load Cards Set Scene");
+		Debug.Log("按钮 - 加载卡牌设置场景");
 		SceneLoaderManager.Instance.LoadScene(Scene.CardSetting);
 	}
 	public void ClickButtonToExitGame() {
-		Debug.Log("Button - Game Exit");
+		Debug.Log("按钮 - 退出游戏");
 		Application.Quit();
 	}
 }

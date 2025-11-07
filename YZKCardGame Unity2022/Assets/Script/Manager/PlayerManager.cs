@@ -5,56 +5,19 @@ public class PlayerManager : ManagerBase<PlayerManager>
 	public Player currentPlayer;
 	public GameObject[] playerObjects = new GameObject[4];
 	public Player[] allPlayers = new Player[4];
-	
 	public void Init() {
 		// 创建主机玩家
 		(_, currentPlayer) = CreatPlayerAtFirstAvailableSeat();
-		currentPlayer.SetPlayerName("主机玩家").LoadCardListFromLocal();
+		currentPlayer.SetPlayerName("主机玩家");
 		currentPlayer.gameObject.name = "Current Player";
 		GameManager.FinishInit();
 	}
 
-	public void MoveCurrentPlayerBaseSeatID(int seatID) {
-		if(seatID < 0 || seatID >= 4) {
-			Debug.LogWarning("座位ID无效，无法设置当前玩家");
-			return;
-		}
-		//交换座位
-		int originalSeat = currentPlayer.seatID;
-		(playerObjects[originalSeat], playerObjects[seatID]) = (playerObjects[seatID], playerObjects[originalSeat]);
-		(allPlayers[originalSeat], allPlayers[seatID]) = (allPlayers[seatID], allPlayers[originalSeat]);
-		//更新座位
-		allPlayers[originalSeat]?.SetSeatID(originalSeat);
-		allPlayers[seatID].SetSeatID(seatID);
-		//重置当前玩家
-		currentPlayer = allPlayers[seatID];
 
-	}
-	public Player FindPlayerBySeatID(int seatID) {
-		if (seatID >= 0 && seatID < 4) {
-			if (allPlayers[seatID] != null) {
-				return allPlayers[seatID];
-			}
-		}
-		return null;
-	}
-	public Player FindPlayerByNetID(ulong netID) {
-		for (int i = 0; i < allPlayers.Length; i++) {
-			if (allPlayers[i] != null && allPlayers[i].netID == netID) {
-				return allPlayers[i];
-			}
-		}
-		return null;
-	}
-	public void RemovePlayerBySeatID(int seatID) {
-		if (seatID >= 0 && seatID < 4) {
-			if (allPlayers[seatID] != null) {
-				Destroy(playerObjects[seatID]);
-				playerObjects[seatID] = null;
-				allPlayers[seatID] = null;
-			}
-		}
-	}
+
+
+
+
 	public (bool success, Player player) CreatPlayerAtFirstAvailableSeat() {
 		for (int i = 0; i < allPlayers.Length; i++) {
 			if (allPlayers[i] == null) {
@@ -83,12 +46,38 @@ public class PlayerManager : ManagerBase<PlayerManager>
 		playerObj.transform.SetParent(ManagerObj.transform);
 		// 添加Player组件并初始化
 		Player player = playerObj.AddComponent<Player>();
-		player.Init();
-		player.SetSeatID(seatID);
+		player.Init(seatID);
 		// 存储到数组指定位置
 		playerObjects[seatID] = playerObj;
 		allPlayers[seatID] = player;
 		return player;
+	}
+
+	public Player FindPlayerBySeatID(int seatID) {
+		if (seatID >= 0 && seatID < 4) {
+			if (allPlayers[seatID] != null) {
+				return allPlayers[seatID];
+			}
+		}
+		return null;
+	}
+	public Player FindPlayerByNetID(ulong netID) {
+		for (int i = 0; i < allPlayers.Length; i++) {
+			if (allPlayers[i] != null && allPlayers[i].netID == netID) {
+				return allPlayers[i];
+			}
+		}
+		return null;
+	}
+
+	public void RemovePlayerBySeatID(int seatID) {
+		if (seatID >= 0 && seatID < 4) {
+			if (allPlayers[seatID] != null) {
+				Destroy(playerObjects[seatID]);
+				playerObjects[seatID] = null;
+				allPlayers[seatID] = null;
+			}
+		}
 	}
 	public void ClearAllPlayersExpectSelf() {
 		for (int i = 0; i < allPlayers.Length; i++) {
@@ -100,4 +89,20 @@ public class PlayerManager : ManagerBase<PlayerManager>
 		}
 	}
 
+	public void MoveCurrentPlayerBaseSeatID(int seatID) {
+		if(seatID < 0 || seatID >= 4) {
+			Debug.LogWarning("座位ID无效，无法设置当前玩家");
+			return;
+		}
+		//交换座位
+		int originalSeat = currentPlayer.seatID;
+		(playerObjects[originalSeat], playerObjects[seatID]) = (playerObjects[seatID], playerObjects[originalSeat]);
+		(allPlayers[originalSeat], allPlayers[seatID]) = (allPlayers[seatID], allPlayers[originalSeat]);
+		//更新座位
+		allPlayers[originalSeat]?.SetSeatID(originalSeat);
+		allPlayers[seatID].SetSeatID(seatID);
+		//重置当前玩家
+		currentPlayer = allPlayers[seatID];
+
+	}
 }

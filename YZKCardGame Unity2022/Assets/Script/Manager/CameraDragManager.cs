@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 摄像机拖拽管理器
-/// 管理不同场景的摄像机拖拽控制器
+/// 摄像机拖拽缩放管理器
 /// </summary>
 public class CameraDragManager : ManagerBase<CameraDragManager> {
     // 场景边界配置
