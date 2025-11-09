@@ -24,7 +24,7 @@ public class CameraDragManager : ManagerBase<CameraDragManager> {
         Log.IncreasePerfixLength();
         Debug.Log($"{Log.perfix}！！！！        CameraDragManager.Init        ！！！！");
         RegisterSceneCallbacks(Scene.GameScene, new Vector2(-20f, -15f), new Vector2(20f, 15f), 3f, 15f);
-        RegisterSceneCallbacks(Scene.CardSetting, new Vector2(-15f, -12f), new Vector2(15f, 12f), 2f, 12f);
+        RegisterSceneCallbacks(Scene.CardSetting, new Vector2(0f, 0f), new Vector2(4.5f, 4.5f), 1.4f, 3f);
         Log.ReducePerfixLength();
         GameManager.FinishInit();
     }
