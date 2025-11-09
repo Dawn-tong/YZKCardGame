@@ -4,30 +4,45 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class CardSettingCardInfo : MonoBehaviour {
+	[Header("编号")]
+	[SerializeField] Text indexText;
 
-	[HideInInspector] public Card card;
-    [Header("编号")]
-    public Text indexText;
     [Header("普通卡牌")]
-    public GameObject normalPanel;
-    public Text LevelText;
-    public Text HpText;
-    public Text AtkText;
+	[SerializeField] GameObject normalPanel;
+    [SerializeField] Text LevelText;
+    [SerializeField] Text HpText;
+    [SerializeField] Text AtkText;
+
     [Header("特殊卡牌")]
-    public GameObject specialPanel;
-    public Text SpecialText;
+	[SerializeField] GameObject specialPanel;
+    [SerializeField] Text SpecialText;
 
 
 
 
 
 
-	void Start() {
-        UpdateCardInfo();
+    //当前显示的卡片
+    public Card Card { private set; get; }
+    //当前玩家的卡牌列表，用于刷新当前卡片
+	public static Card[] cardsList;
+    int cardIndex;
+    /// <summary>
+    /// 刷新显示内容
+    /// </summary>
+    public int CardIndex {
+        set { 
+            cardIndex = value;
+            UpdateCardInfo();
+        }
+        get {
+            return cardIndex;
+        }
     }
     public void UpdateCardInfo() {
-        indexText.text = (card.cardIndex + 1).ToString();
-        if(card == null) {
+        indexText.text = (CardIndex + 1).ToString();
+        Card = cardsList[CardIndex];
+        if(Card == null) {
             normalPanel.SetActive(true);
             specialPanel.SetActive(false);
             LevelText.text = "--";
@@ -35,14 +50,14 @@ public class CardSettingCardInfo : MonoBehaviour {
             AtkText.text = "--";
             return;
         }
-        if (card.cardType == CardType.Normal) {
+        if (Card.cardType == CardType.Normal) {
             normalPanel.SetActive(true);
             specialPanel.SetActive(false);
-            LevelText.text = card.level.ToString();
-            HpText.text = card.hp.ToString();
-            AtkText.text = card.atk.ToString();
+            LevelText.text = Card.level.ToString();
+            HpText.text = Card.hp.ToString();
+            AtkText.text = Card.atk.ToString();
         }
-        else if (card.cardType == CardType.Bomb) {
+        else if (Card.cardType == CardType.Bomb) {
             normalPanel.SetActive(false);
             specialPanel.SetActive(true);
             SpecialText.text = "炸弹";

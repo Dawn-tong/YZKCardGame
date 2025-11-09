@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.IO;
 
 public class CardManager : MonoBehaviour {
@@ -11,6 +12,8 @@ public class CardManager : MonoBehaviour {
 
 	public Player owner;
 	public Card[] cardsList;
+	public event Action CardLevelChanged;
+
 	//初始化CardManager
 	public void Init(Player owner) {
 		this.owner = owner;
@@ -23,65 +26,46 @@ public class CardManager : MonoBehaviour {
 
 
 
-	
-	public int lastNormalCardIndex;	//普通卡牌指针：记录最后一个普通卡牌的位置（指向空位置的前一个位置）
-	/// <summary>
-	/// 添加一张1星普通卡片到卡组（自动追加到最后一个位置）
-	/// </summary>
-	public bool AddNormalCard() {
-		//检查是否超出普通卡牌上限
-		int nextPosition = lastNormalCardIndex + 1;
-		if (nextPosition >= MAX_TOTAL_CARDS) {
-			Debug.LogWarning($"普通卡牌已达上限: {MAX_NORMAL_CARDS}");
+
+	public bool AddNormalCard(int cardIndex) {
+		if(cardIndex < 0 || cardIndex >= MAX_TOTAL_CARDS) {
+			Debug.LogWarning($"卡片ID无效: {cardIndex}");
 			return false;
 		}
-		//检查总等级超出限制
-		if (CalSumOfCardsLevel() >= MAX_TOTAL_LEVEL) {
+		if(cardsList[cardIndex] != null) {
+			Debug.LogWarning($"位置 {cardIndex} 已有卡片");
+			return false;
+		}
+		if(CalSumOfCardsLevel() >= MAX_TOTAL_LEVEL) {
 			Debug.LogWarning($"总等级超出限制: {MAX_TOTAL_LEVEL}");
 			return false;
 		}
-		//添加卡片
-		lastNormalCardIndex++;
-		cardsList[lastNormalCardIndex] = new Card() {
-			cardType = CardType.Normal,
-			cardIndex = lastNormalCardIndex,
-			level = 1,
-			hp = 1,
-			atk = 1,
-		};
-		//Debug.Log($"成功添加普通卡牌到位置{lastNormalCardIndex}");
+		cardsList[cardIndex] = new Card() { cardType = CardType.Normal, level = 1, hp = 1, atk = 1 };
+		CardLevelChanged?.Invoke();
 		return true;
 	}
 	/// <summary>
-	/// 删除指定位置的卡片（通过ID），删除后后面的卡片ID统一-1
+	/// 删除指定位置的卡片
 	/// </summary>
-	public bool DeleteCard(int cardId) {
-		if (cardId < 0 || cardId >= MAX_TOTAL_CARDS) {
-			Debug.LogWarning($"卡片ID无效: {cardId}");
+	public bool DeleteCard(int cardIndex) {
+		if (cardIndex < 0 || cardIndex >= MAX_TOTAL_CARDS) {
+			Debug.LogWarning($"卡片ID无效: {cardIndex}");
 			return false;
 		}
 		// 特殊卡牌不可删除
-		if (cardId < NORMAL_CARD_START) {
-			Debug.LogWarning($"无法删除特殊卡牌（位置 {cardId}）");
+		if (cardIndex < NORMAL_CARD_START) {
+			Debug.LogWarning($"无法删除特殊卡牌（位置 {cardIndex}）");
 			return false;
 		}
 		
-		if (cardId > lastNormalCardIndex) {
-			Debug.LogWarning($"位置 {cardId} 没有卡片（超出范围）");
+		if (cardsList[cardIndex] == null) {
+			Debug.LogWarning($"位置 {cardIndex} 没有卡片（空槽位）");
 			return false;
 		}
 		// 删除卡片
-		cardsList[cardId] = null;
-		// 后面的卡片ID统一-1（前移）
-		for (int i = cardId + 1; i <= lastNormalCardIndex; i++) {
-			if (cardsList[i] != null) {
-				cardsList[i - 1] = cardsList[i];
-				cardsList[i] = null;
-			}
-		}
-		// 更新指针
-		lastNormalCardIndex--;
-		Debug.Log($"成功删除卡片ID {cardId}，后续卡片已前移");
+		cardsList[cardIndex] = null;
+		CardLevelChanged?.Invoke();
+		Debug.Log($"成功删除卡片ID {cardIndex}，槽位已清空");
 		return true;
 	}
 
@@ -102,8 +86,10 @@ public class CardManager : MonoBehaviour {
 	/// </summary>
 	public int CalSumOfCardsLevel() {
 		int sum = 0;
-		for (int i = NORMAL_CARD_START; i <= lastNormalCardIndex; i++) {
-			sum += cardsList[i].level;
+		for (int i = NORMAL_CARD_START; i < MAX_TOTAL_CARDS; i++) {
+			if (cardsList[i] != null) {
+				sum += cardsList[i].level;
+			}
 		}
 		return sum;
 	}
@@ -118,6 +104,7 @@ public class CardManager : MonoBehaviour {
 		card.level++;
 		card.hp++;
 		card.atk++;
+		CardLevelChanged?.Invoke();
 		return true;
 	}
 	public bool CardLevelDown(int index) {
@@ -142,6 +129,7 @@ public class CardManager : MonoBehaviour {
 		else {
 			card.atk--;
 		}
+		CardLevelChanged?.Invoke();
 		return true;
 	}
 	public bool CardHpUp(int index) {
@@ -205,8 +193,6 @@ public class CardManager : MonoBehaviour {
 					Debug.LogWarning($"{Log.perfix}加载的卡组数据格式不正确，使用默认卡组");
 					InitCardsList();
 				}
-				// 更新指针位置
-				UpdateLastNormalCardIndex();
 				Debug.Log($"{Log.perfix}从本地加载卡组成功: {cardsList.Length} 张卡片");
 			}
 			else {
@@ -219,29 +205,13 @@ public class CardManager : MonoBehaviour {
 			InitCardsList();
 		}
 	}
-	/// <summary>
-	/// 更新最后一个普通卡牌的位置指针
-	/// </summary>
-	void UpdateLastNormalCardIndex() {
-		// 从后往前查找最后一个普通卡牌的位置
-		for (int i = MAX_TOTAL_CARDS - 1; i >= NORMAL_CARD_START; i--) {
-			if (cardsList[i] != null) {
-				lastNormalCardIndex = i;
-				return;
-			}
-		}
-		
-		// 如果没有找到普通卡牌，指针指向起始位置前一个
-		lastNormalCardIndex = NORMAL_CARD_START - 1;
-	}
 	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
 	void InitCardsList() {
-		cardsList[0] = new Card() { cardType = CardType.Bomb, cardIndex = 0 };
-		cardsList[1] = new Card() { cardType = CardType.Bomb, cardIndex = 1 };
+		cardsList[0] = new Card() { cardType = CardType.Bomb };
+		cardsList[1] = new Card() { cardType = CardType.Bomb };
 		for (int i = 1; i <= 10; i++) {
 			cardsList[i + 1] = new Card() {
 				cardType = CardType.Normal,
-				cardIndex = i + 1,
 				level = i,
 				hp = i,
 				atk = i,
@@ -249,15 +219,12 @@ public class CardManager : MonoBehaviour {
 		}
 		cardsList[12] = null;
 		cardsList[13] = null;
-		lastNormalCardIndex = 11;
 	}
 	/// <summary>
 	/// 从网络加载卡组
 	/// </summary>
 	public void LoadCardsListFromNet(Card[] cardsList) {
 		this.cardsList = cardsList;
-		// 更新指针位置
-		UpdateLastNormalCardIndex();
 	}
 
 
