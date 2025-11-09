@@ -18,10 +18,10 @@ public class NetManager : ManagerBase<NetManager> {
     }
 	// 自动创建所需的网络组件
 	void EnsureNetworkComponents() {
-		// 检查是否已存在 Unity 的 NetworkManager(只会运行一次,必定不存在)
-		// if (NetworkManager.Singleton == null) {
-		Debug.Log("自动创建 NetworkManager 组件...");
-		// 创建 GameObject 并添加必要组件
+		//检查是否已存在 Unity 的 NetworkManager(只会运行一次,必定不存在)
+		//if (NetworkManager.Singleton == null) {
+		//Debug.Log("自动创建 NetworkManager 组件...");
+		//创建 GameObject 并添加必要组件
 		var networkObject = new GameObject("NetworkManager");
 		DontDestroyOnLoad(networkObject);
 		//此组件无法放在其他节点下

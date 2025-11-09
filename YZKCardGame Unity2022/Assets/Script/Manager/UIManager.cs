@@ -1,21 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Tilemaps.TilemapRenderer;
 
-public class UIManager : ManagerBase<UIManager>
-{
+public class UIManager : ManagerBase<UIManager> {
 	//初始化永久面板
 	public void Init(){
         CreateMessagePanel();
         GameManager.FinishInit();
     }
 
+
+
+
+
+
 	//消息面板
 	[SerializeField] int messagePanelSortOrder = 999;
-    void CreateMessagePanel()
-    {
+    void CreateMessagePanel() {
 		//创建CanvasObj
 		GameObject messagePanelCanvasObj = new GameObject("messagePanelCanvas");
 		DontDestroyOnLoad(messagePanelCanvasObj);
@@ -46,6 +47,49 @@ public class UIManager : ManagerBase<UIManager>
 		UIMessagePanel.Instance.Init();
 	}
 
-    // TODO: 弹窗
 
+
+
+
+
+    //TODO: 弹窗
+
+
+
+
+
+
+    //UI屏蔽
+    static readonly HashSet<UIShield> ActiveShields = new HashSet<UIShield>();
+    public static void RegisterShield(UIShield shield) {
+        if (shield == null) {
+            return;
+        }
+        ActiveShields.Add(shield);
+    }
+    public static void UnregisterShield(UIShield shield) {
+        if (shield == null) {
+            return;
+        }
+        ActiveShields.Remove(shield);
+    }
+	/// <summary>
+	/// 判断是否点击到存在UIShield组件的UI上
+	/// </summary>
+	public static bool IsClickBlockingUI() {
+        ActiveShields.RemoveWhere(shield => shield == null);
+        Vector2 pointer = Input.mousePosition;
+        foreach (UIShield shield in ActiveShields) {
+            RectTransform rectTransform = shield.RectTransform;
+            if (rectTransform == null) {
+                continue;
+            }
+            Canvas canvas = rectTransform.GetComponentInParent<Canvas>();
+            Camera eventCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, pointer, eventCamera)) {
+                return true;
+            }
+        }
+        return false;
+	}
 }

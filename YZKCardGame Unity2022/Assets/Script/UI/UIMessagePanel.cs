@@ -15,10 +15,10 @@ public class UIMessagePanel : MonoBehaviour
     private bool isPanelVisible = true;
     
     public void Init() {
-        //创建滚动显示面板
-        CreateScrollPanel();
         //创建开关按钮
         CreateToggleButton();
+        //创建滚动显示面板
+        CreateScrollPanel();
         SetPanelVisible(true);
 	}
     
@@ -29,18 +29,16 @@ public class UIMessagePanel : MonoBehaviour
         GameObject buttonObj = new GameObject("ToggleButton");
         RectTransform buttonRect = buttonObj.AddComponent<RectTransform>();
         buttonRect.SetParent(transform, false);
-
-        // 设置按钮位置和大小（在面板左侧）
         buttonRect.anchorMin = new Vector2(0, 0);  // 左下角
         buttonRect.anchorMax = new Vector2(0, 1);  // 左上角
         buttonRect.pivot = new Vector2(0, 0.5f);   // 轴心点在左侧
         buttonRect.anchoredPosition = Vector2.zero;
         buttonRect.sizeDelta = new Vector2(60, 0);
-
+		// 添加UIShield组件
+		UIShield uIShield = buttonObj.AddComponent<UIShield>();
 		// 添加Image组件
 		Image buttonImage = buttonObj.AddComponent<Image>();
         buttonImage.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-        
         // 添加Button组件
         toggleButton = buttonObj.AddComponent<Button>();
         toggleButton.onClick.AddListener(() => {
@@ -97,6 +95,8 @@ public class UIMessagePanel : MonoBehaviour
 		scrollRectTransform.pivot = new Vector2(0.5f, 0.5f);
 		scrollRectTransform.offsetMin = new Vector2(60, 0);   // 左侧留空60像素给按钮
 		scrollRectTransform.offsetMax = new Vector2(0, 0);    // 右侧不留空
+		// 添加UIShield组件
+		UIShield uIShield = ScrollView.AddComponent<UIShield>();
 
 		// 创建消息文本
 		messageTextObj = new GameObject("MessageText");
@@ -123,25 +123,20 @@ public class UIMessagePanel : MonoBehaviour
 		GameObject textObj = Instantiate(messageTextObj, content);
 		textObj.GetComponent<Text>().text = DateTime.Now.ToString("[HH:mm:ss]") + message;
 		textObj.SetActive(true);
-
 		// 自动滚动到底部（下一帧，等待布局更新）
 		StartCoroutine(ScrollToBottomNextFrame());
 	}
 
-	private IEnumerator ScrollToBottomNextFrame()
-	{
+	IEnumerator ScrollToBottomNextFrame() {
 		yield return null; // 等待一帧，确保布局与 ContentSizeFitter/VerticalLayoutGroup 已更新
-		if (ScrollView == null)
-		{
+		if (ScrollView == null) {
 			yield break;
 		}
 		Canvas.ForceUpdateCanvases();
 		ScrollRect scrollRect = ScrollView.GetComponent<ScrollRect>();
-		if (scrollRect != null)
-		{
+		if (scrollRect != null) {
 			// 强制重建 Content 布局，避免内容高度未更新导致无法滚动到底
-			if (content is RectTransform rt)
-			{
+			if (content is RectTransform rt) {
 				LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
 			}
 			scrollRect.verticalNormalizedPosition = 0f;
@@ -169,8 +164,7 @@ public class UIMessagePanel : MonoBehaviour
 		// 重置滚动位置到顶部
 		if (ScrollView != null) {
 			ScrollRect scrollRect = ScrollView.GetComponent<ScrollRect>();
-			if (scrollRect != null)
-			{
+			if (scrollRect != null) {
 				scrollRect.verticalNormalizedPosition = 1f;
 			}
 		}
