@@ -11,6 +11,7 @@ public enum CardType {
 public class Card {
 	//这些字段需要是public的，用于序列化
 	public CardType cardType;
+	public int cardIndex;
 	public int level;   // 星级
 	public int hp;		// 生命
 	public int atk;		// 攻击

@@ -10,28 +10,13 @@ public class CardManager : MonoBehaviour {
 	const int CARD_MAX_LEVEL = 10;		// 卡牌最高10星
 
 	public Player owner;
+	public Card[] cardsList;
 	//初始化CardManager
 	public void Init(Player owner) {
 		this.owner = owner;
 		cardsList = new Card[MAX_TOTAL_CARDS];
 		cardListPath = Path.Combine(Application.persistentDataPath, "CardList.json");
-		LoadCardListFromLocal();
-	}
-
-	public Card[] cardsList;
-	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
-	void InitCardList() {
-		cardsList[0] = new Card() { cardType = CardType.Bomb };
-		cardsList[1] = new Card() { cardType = CardType.Bomb };
-		for (int i = 1; i <= 10; i++) {
-			cardsList[i + 1] = new Card() {
-				cardType = CardType.Normal,
-				level = i,
-				hp = i,
-				atk = i,
-			};
-		}
-		lastNormalCardIndex = NORMAL_CARD_START - 1;
+		LoadCardsListFromLocal();
 	}
 
 
@@ -39,26 +24,32 @@ public class CardManager : MonoBehaviour {
 
 
 	
-	int lastNormalCardIndex;	//普通卡牌指针：记录最后一个普通卡牌的位置（指向空位置的前一个位置）
+	public int lastNormalCardIndex;	//普通卡牌指针：记录最后一个普通卡牌的位置（指向空位置的前一个位置）
 	/// <summary>
-	/// 添加普通卡片到卡组（自动追加到最后一个位置）
+	/// 添加一张1星普通卡片到卡组（自动追加到最后一个位置）
 	/// </summary>
-	public bool AddNormalCard(Card card) {
-		if (card == null) {
-			Debug.LogWarning("无法添加空卡片");
-			return false;
-		}
-
-		// 检查是否超出普通卡牌上限
+	public bool AddNormalCard() {
+		//检查是否超出普通卡牌上限
 		int nextPosition = lastNormalCardIndex + 1;
 		if (nextPosition >= MAX_TOTAL_CARDS) {
 			Debug.LogWarning($"普通卡牌已达上限: {MAX_NORMAL_CARDS}");
 			return false;
 		}
-		// 使用指针直接定位到下一个位置
-		cardsList[nextPosition] = card;
-		lastNormalCardIndex = nextPosition;  // 更新指针
-		Debug.Log($"成功添加普通卡牌到位置 {nextPosition}: {card}");
+		//检查总等级超出限制
+		if (CalSumOfCardsLevel() >= MAX_TOTAL_LEVEL) {
+			Debug.LogWarning($"总等级超出限制: {MAX_TOTAL_LEVEL}");
+			return false;
+		}
+		//添加卡片
+		lastNormalCardIndex++;
+		cardsList[lastNormalCardIndex] = new Card() {
+			cardType = CardType.Normal,
+			cardIndex = lastNormalCardIndex,
+			level = 1,
+			hp = 1,
+			atk = 1,
+		};
+		//Debug.Log($"成功添加普通卡牌到位置{lastNormalCardIndex}");
 		return true;
 	}
 	/// <summary>
@@ -93,35 +84,19 @@ public class CardManager : MonoBehaviour {
 		Debug.Log($"成功删除卡片ID {cardId}，后续卡片已前移");
 		return true;
 	}
-	/// <summary>
-	/// 清空卡组
-	/// </summary>
-	public void ClearCardList()
-	{
-		InitCardList();
-	}
-	/// <summary>
-	/// 获取指定下标的卡片
-	/// </summary>
-	public Card GetCard(int index) {
+
+
+
+
+
+
+	Card GetCard(int index) {
 		if (index < 0 || index >= MAX_TOTAL_CARDS) {
 			Debug.LogWarning($"下标无效: {index}");
 			return null;
 		}
 		return cardsList[index];
 	}
-	/// <summary>
-	/// 获取卡牌列表
-	/// </summary>
-	public Card[] GetCardsList() {
-		return cardsList;
-	}
-
-
-
-
-
-
 	/// <summary>
 	/// 获取卡牌总星级
 	/// </summary>
@@ -151,8 +126,22 @@ public class CardManager : MonoBehaviour {
 			return false;
 		}
 		card.level--;
-		card.hp--;
-		card.atk--;
+		//降低生命值
+		if(card.hp <= 1) {
+			//生命值不足时降低攻击力
+			card.atk--;
+		}
+		else {
+			card.hp--;
+		}
+		//降低攻击力
+		if(card.atk <= 1) {
+			//攻击力不足时降低生命值
+			card.hp--;
+		}
+		else {
+			card.atk--;
+		}
 		return true;
 	}
 	public bool CardHpUp(int index) {
@@ -183,7 +172,7 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 保存卡组到本地
 	/// </summary>
-	public void SaveCardListToLocal() {
+	public void SaveCardsListToLocal() {
 		try {
 			// 将数组包装成可序列化的类
 			CardListWrapper wrapper = new CardListWrapper { cards = cardsList };
@@ -201,7 +190,7 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 从本地加载卡组
 	/// </summary>
-	public void LoadCardListFromLocal() {
+	public void LoadCardsListFromLocal() {
 		try {
 			if (File.Exists(cardListPath)) {
 				// 读取文件
@@ -214,7 +203,7 @@ public class CardManager : MonoBehaviour {
 				}
 				else {
 					Debug.LogWarning($"{Log.perfix}加载的卡组数据格式不正确，使用默认卡组");
-					InitCardList();
+					InitCardsList();
 				}
 				// 更新指针位置
 				UpdateLastNormalCardIndex();
@@ -222,12 +211,12 @@ public class CardManager : MonoBehaviour {
 			}
 			else {
 				Debug.LogWarning($"{Log.perfix}本地卡组文件不存在");
-				InitCardList();
+				InitCardsList();
 			}
 		}
 		catch (System.Exception e) {
 			Debug.LogError($"{Log.perfix}加载卡组失败: {e.Message}");
-			InitCardList();
+			InitCardsList();
 		}
 	}
 	/// <summary>
@@ -245,10 +234,27 @@ public class CardManager : MonoBehaviour {
 		// 如果没有找到普通卡牌，指针指向起始位置前一个
 		lastNormalCardIndex = NORMAL_CARD_START - 1;
 	}
+	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
+	void InitCardsList() {
+		cardsList[0] = new Card() { cardType = CardType.Bomb, cardIndex = 0 };
+		cardsList[1] = new Card() { cardType = CardType.Bomb, cardIndex = 1 };
+		for (int i = 1; i <= 10; i++) {
+			cardsList[i + 1] = new Card() {
+				cardType = CardType.Normal,
+				cardIndex = i + 1,
+				level = i,
+				hp = i,
+				atk = i,
+			};
+		}
+		cardsList[12] = null;
+		cardsList[13] = null;
+		lastNormalCardIndex = 11;
+	}
 	/// <summary>
 	/// 从网络加载卡组
 	/// </summary>
-	public void LoadCardListFromNet(Card[] cardsList) {
+	public void LoadCardsListFromNet(Card[] cardsList) {
 		this.cardsList = cardsList;
 		// 更新指针位置
 		UpdateLastNormalCardIndex();
@@ -262,7 +268,7 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 验证卡组是否有效(规则不同就无法加入游戏)
 	/// </summary>
-	public bool IsCardListValid() {
+	public bool IsValidCardsList() {
 		//验证卡牌有效性
 		if(cardsList == null || cardsList.Length <= 0 || cardsList.Length > MAX_TOTAL_CARDS) {
 			Debug.LogError($"卡牌数量无效: {(cardsList == null ? 0 : cardsList.Length)}/{MAX_TOTAL_CARDS}");

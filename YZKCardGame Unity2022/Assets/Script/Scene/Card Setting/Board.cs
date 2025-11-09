@@ -3,7 +3,7 @@ using UnityEngine.Tilemaps;
 
 public class Board : MonoBehaviour
 {
-	public int boardSize = 10;
+	//			public int boardSize = 10;
 	[SerializeField] Tilemap boardTilemap;
 	//			[SerializeField] TileBase boardTile;
 	//			void Start() {
