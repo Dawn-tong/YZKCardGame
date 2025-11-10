@@ -96,6 +96,16 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
             onSceneLeaveCallbacks[scene] = callback;
         }
 	}
+	public void UnregisterSceneEnterCallback(Scene scene, UnityAction callback) {
+        if (onSceneEnterCallbacks.ContainsKey(scene)) {
+            onSceneEnterCallbacks[scene] -= callback;
+        }
+	}
+	public void UnregisterSceneLeaveCallback(Scene scene, UnityAction callback) {
+        if (onSceneLeaveCallbacks.ContainsKey(scene)) {
+            onSceneLeaveCallbacks[scene] -= callback;
+        }
+	}
 
 
 

@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class TitleSceneController : SceneControllerBase
 {
-	public override void OnSceneEnter()
-	{
-	}
-
-	public override void OnSceneLeave()
-	{
-	}
+	public override void OnSceneEnter() { }
+	public override void OnSceneLeave() { }
 }

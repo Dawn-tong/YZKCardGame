@@ -45,8 +45,8 @@ public class CardSettingUI_AllCardsPanel : MonoBehaviour {
 	public CardSettingUI_OneCardPanel oneCardPanel;
 	public void ShowOneCardPanel(Card card, int cardIndex) {
 		Debug.Log($"∞¥≈• - œ‘ æø®∆¨œÍ«È");
-		oneCardPanel.ShowAllCardsPanel();
-		oneCardPanel.SetOneCardPanel(cardIndex);
+		oneCardPanel.ShowOneCardsPanel();
+		oneCardPanel.UpdateOneCardPanel(cardIndex);
 		HideAllCardsPanel();
 	}
 

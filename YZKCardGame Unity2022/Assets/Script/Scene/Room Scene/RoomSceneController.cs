@@ -4,17 +4,11 @@ using UnityEngine;
 
 public class RoomSceneController : SceneControllerBase
 {
-	UIRoom UI;
-	public override void OnSceneEnter()
-	{
-		UI = Object.FindFirstObjectByType<UIRoom>();
-		UI.OnSceneEnter();
-		RoomService.Instance.OnSceneEnter();
+	public override void OnSceneEnter() {
+		RoomSceneService.Instance.OnSceneEnter();
 	}
 
-	public override void OnSceneLeave()
-	{
-		UI.OnSceneLeave();
-		RoomService.Instance.OnSceneLeave();
+	public override void OnSceneLeave() {
+		RoomSceneService.Instance.OnSceneLeave();
 	}
 }

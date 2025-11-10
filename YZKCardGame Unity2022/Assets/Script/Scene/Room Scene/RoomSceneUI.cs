@@ -2,8 +2,40 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIRoom : MonoBehaviour
-{
+public class RoomSceneUI : MonoBehaviour {
+	void Awake() {
+		SceneLoaderManager.Instance.RegisterSceneEnterCallback(Scene.RoomScene, OnSceneEnter);
+		SceneLoaderManager.Instance.RegisterSceneLeaveCallback(Scene.RoomScene, OnSceneLeave);
+	}
+	public void OnSceneEnter() {
+		RoomSceneService.Instance.UpdateUIEvent += UpdatePlayerPanelData;
+		if (NetManager.Instance.isHostPlayer) {
+			NetManager.Instance.OnCreatRoomSuccess += DisplayUI;
+			creatOrAddRoomText.text = "正在创建房间......";
+		}
+		else {
+			NetManager.Instance.OnJoinRoomSuccess += DisplayUI;
+			creatOrAddRoomText.text = "正在加入房间......";
+			roomNumberText.text = $"房间号: {NetManager.Instance.GetCurrentJoinCode()}";
+		}
+	}
+	public void OnSceneLeave() {
+		RoomSceneService.Instance.UpdateUIEvent -= UpdatePlayerPanelData;
+		if (NetManager.Instance.isHostPlayer) {
+			NetManager.Instance.OnCreatRoomSuccess -= DisplayUI;
+		}
+		else {
+			NetManager.Instance.OnJoinRoomSuccess -= DisplayUI;
+		}
+		SceneLoaderManager.Instance.UnregisterSceneEnterCallback(Scene.RoomScene, OnSceneEnter);
+		SceneLoaderManager.Instance.UnregisterSceneLeaveCallback(Scene.RoomScene, OnSceneLeave);
+	}
+
+
+
+
+
+
 	public Text roomNumberText;
 	public Text creatOrAddRoomText;
 	public GameObject allPlayerPanel;
@@ -25,45 +57,23 @@ public class UIRoom : MonoBehaviour
 		}
 		UpdatePlayerPanelData();
 		if (NetManager.Instance.isHostPlayer) {
-			RoomService.Instance.SendSelfChangeReadyResponse();
+			RoomSceneService.Instance.SendSelfChangeReadyResponse();
 		}
 		else {
-			RoomService.Instance.SendSelfChangeReadyRequest();
+			RoomSceneService.Instance.SendSelfChangeReadyRequest();
 		}
 	}
 	public void ClickButtonToLeaveRoom() {
 		Debug.Log("按钮 - 离开房间");
 		if(NetManager.Instance.isHostPlayer) {
-			RoomService.Instance.SendRoomCloseResponse();
+			RoomSceneService.Instance.SendRoomCloseResponse();
 		}
 		else {
-			RoomService.Instance.SendLeaveRoomRequest();
+			RoomSceneService.Instance.SendLeaveRoomRequest();
 		}
 	}
 
 
-
-	public void OnSceneEnter() {
-		RoomService.Instance.UpdateUIEvent += UpdatePlayerPanelData;
-		if (NetManager.Instance.isHostPlayer) {
-			NetManager.Instance.OnCreatRoomSuccess += DisplayUI;
-			creatOrAddRoomText.text = "正在创建房间......";
-		}
-		else {
-			NetManager.Instance.OnJoinRoomSuccess += DisplayUI;
-			creatOrAddRoomText.text = "正在加入房间......";
-			roomNumberText.text = $"房间号: {NetManager.Instance.GetCurrentJoinCode()}";
-		}
-	}
-	public void OnSceneLeave() {
-		RoomService.Instance.UpdateUIEvent -= UpdatePlayerPanelData;
-		if (NetManager.Instance.isHostPlayer) {
-			NetManager.Instance.OnCreatRoomSuccess -= DisplayUI;
-		}
-		else {
-			NetManager.Instance.OnJoinRoomSuccess -= DisplayUI;
-		}
-	}
 
 
 
@@ -100,5 +110,4 @@ public class UIRoom : MonoBehaviour
 			}
 		}
 	}
-	
 }

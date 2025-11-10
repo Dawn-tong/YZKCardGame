@@ -2,13 +2,13 @@ using Network;
 using ProtoMessage;
 using UnityEngine;
 
-public class RoomService
+public class RoomSceneService
 {
-	static RoomService instance;
-	public static RoomService Instance {
+	static RoomSceneService instance;
+	public static RoomSceneService Instance {
 		get {
 			if (instance == null)
-				instance = new RoomService();
+				instance = new RoomSceneService();
 			return instance;
 		}
 	}
