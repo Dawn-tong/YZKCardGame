@@ -1,24 +1,20 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class CardSettingBoard : MonoBehaviour {
-	void Awake() {
-		SceneLoaderManager.Instance.RegisterSceneEnterCallback(Scene.CardSetting, OnSceneEnter);
-		SceneLoaderManager.Instance.RegisterSceneLeaveCallback(Scene.CardSetting, OnSceneLeave);
-	}
-
 	CardManager cardManager;
-	//注册交换事件
+	[SerializeField] CardSettingUI_OneCardPanel oneCardPanel;
 	public void OnSceneEnter() {
+		//初始化cardManager
 		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
-		cardManager.OnCardSwap += UpdateBoard;
+		//点击棋盘打开属性面板
+		OnTileClicked += oneCardPanel.ClickBoardToOpenOneCardPanel;
+		//刷新棋盘
 		UpdateBoard();
 	}
-	//取消注册交换事件
 	public void OnSceneLeave() {
-		SceneLoaderManager.Instance.UnregisterSceneEnterCallback(Scene.CardSetting, OnSceneEnter);
-		SceneLoaderManager.Instance.UnregisterSceneLeaveCallback(Scene.CardSetting, OnSceneLeave);
-		cardManager.OnCardSwap -= UpdateBoard;
+		OnTileClicked -= oneCardPanel.ClickBoardToOpenOneCardPanel;
 	}
 
 
@@ -71,9 +67,14 @@ public class CardSettingBoard : MonoBehaviour {
 
 
 
-	//更新棋盘
 	[SerializeField] GameObject chessPrefab;
 	CardSettingChessInfo[,] chessBoard = new CardSettingChessInfo[10, 10];
+	//放置棋子
+	public void PutCardOnBoard(Card card, int positionX, int positionY) {
+		cardManager.PutCardToPosition(card, positionX, positionY);
+		UpdateBoard();
+	}
+	//更新棋盘
 	void UpdateBoard() {
 		Debug.Log("更新所有棋盘事件发生");
 		for (int x = 0; x < 10; x++) {
@@ -105,5 +106,10 @@ public class CardSettingBoard : MonoBehaviour {
 			return;
 		}
 		chessBoard[positionX, positionY].UpdateChessInfo();
+	}
+	//删除棋子
+	public void DeleteBoardChess(int positionX, int positionY) {
+		Destroy(chessBoard[positionX, positionY].gameObject);
+		chessBoard[positionX, positionY] = null;
 	}
 }

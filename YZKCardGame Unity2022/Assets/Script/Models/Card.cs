@@ -11,6 +11,7 @@ public enum CardType {
 public class Card {
 	public bool exists;
 	//这些字段需要是public的，用于序列化
+	public int index = -1;
 	public CardType cardType;
 	public int level;   // 星级
 	public int hp;		// 生命

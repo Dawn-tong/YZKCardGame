@@ -10,21 +10,19 @@ public enum Scene {
 	GameScene,
 	HallScene,
 	RoomScene,
+    RuleScene,
 	TitleScene,
 }
 
-public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
-{
+public class SceneLoaderManager : ManagerBase<SceneLoaderManager> {
     Scene currentScene;
-    Dictionary<Scene, SceneControllerBase> sceneControllers = new Dictionary<Scene, SceneControllerBase>();
     public void Init()  {
-		// 注册场景控制器
-		RegisterSceneController<CardSettingController>(Scene.CardSetting);
-		RegisterSceneController<GameSceneController>(Scene.GameScene);
-		RegisterSceneController<HallSceneController>(Scene.HallScene);
-		RegisterSceneController<RoomSceneController>(Scene.RoomScene);
-		RegisterSceneController<TitleSceneController>(Scene.TitleScene);
-		// 进入当前场景
+        InitCurrentScene();
+        GameManager.OnAllManagersFinishInit += OnAllManagersFinishInit;
+		GameManager.FinishInit();
+    }
+    void InitCurrentScene() {
+        // 进入当前场景
 		if (Enum.TryParse(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, out Scene sceneValue)) {
 			currentScene = sceneValue;
 		}
@@ -32,80 +30,27 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
             Debug.LogError("当前场景不在枚举值中");
 			currentScene = Scene.None;
 		}
-        GameManager.OnAllManagersFinishInit += OnAllManagersFinishInit;
-		GameManager.FinishInit();
     }
-    void RegisterSceneController<T>(Scene scene) where T : SceneControllerBase, new() {
-		var controller = new T();
-        sceneControllers[scene] = controller;
-	}
-
 	void OnAllManagersFinishInit() {
 		// 等待所有Manager运行结束后运行
+        Log.IncreasePerfixLength();
+        Debug.Log($"{Log.perfix}————        SceneLoaderManager初始化回调        ————");
         GameManager.OnAllManagersFinishInit -= OnAllManagersFinishInit;
+
 		initIsFinish = true;
-		if (sceneControllers.ContainsKey(currentScene)) {
-            Debug.Log($"{Log.perfix}SceneLoaderManager.Init - 调用场景 {currentScene} 的进入回调");
-			sceneControllers[currentScene].OnSceneEnter();
-		}
-		else {
-			Debug.LogError($"{Log.perfix}SceneLoaderManager.Init - 场景控制器未注册: {currentScene}");
-		}
-        if (onSceneEnterCallbacks.ContainsKey(currentScene)) {
-            Debug.Log($"{Log.perfix}SceneLoaderManager.Init - 调用其他系统触发的场景 {currentScene} 的进入回调");
-            onSceneEnterCallbacks[currentScene]?.Invoke();
-        }
+        InvokeSceneEnter();
+
+        Log.ReducePerfixLength();
 	}
     //离开游戏自动运行当前场景离开
 	void OnApplicationQuit() {
-		if (sceneControllers.ContainsKey(currentScene)) {
-			Debug.Log($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 调用场景 {currentScene} 的离开回调");
-			sceneControllers[currentScene].OnSceneLeave();
-		}
-		else {
-			Debug.LogWarning($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 场景 {currentScene} 未注册离开回调");
-		}
-
+        InvokeSceneLeave();
 		// 清理资源
-		sceneControllers.Clear();
+        currentController = null;
 		onProgress = null;
 		Debug.Log($"{Log.perfix}SceneLoaderManager.OnApplicationQuit - 场景加载管理器清理完成");
 	}
 
-
-
-
-
-
-	//其他系统触发的回调函数
-	Dictionary<Scene, UnityAction> onSceneEnterCallbacks = new Dictionary<Scene, UnityAction>();
-	Dictionary<Scene, UnityAction> onSceneLeaveCallbacks = new Dictionary<Scene, UnityAction>();
-	public void RegisterSceneEnterCallback(Scene scene, UnityAction callback) {
-        if (onSceneEnterCallbacks.ContainsKey(scene)) {
-            onSceneEnterCallbacks[scene] += callback;
-        }
-        else {
-            onSceneEnterCallbacks[scene] = callback;
-        }
-	}
-	public void RegisterSceneLeaveCallback(Scene scene, UnityAction callback) {
-        if (onSceneLeaveCallbacks.ContainsKey(scene)) {
-            onSceneLeaveCallbacks[scene] += callback;
-        }
-        else {
-            onSceneLeaveCallbacks[scene] = callback;
-        }
-	}
-	public void UnregisterSceneEnterCallback(Scene scene, UnityAction callback) {
-        if (onSceneEnterCallbacks.ContainsKey(scene)) {
-            onSceneEnterCallbacks[scene] -= callback;
-        }
-	}
-	public void UnregisterSceneLeaveCallback(Scene scene, UnityAction callback) {
-        if (onSceneLeaveCallbacks.ContainsKey(scene)) {
-            onSceneLeaveCallbacks[scene] -= callback;
-        }
-	}
 
 
 
@@ -135,18 +80,7 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
 		Log.IncreasePerfixLength();
 		Debug.Log($"{Log.perfix}————        SceneLoaderManager.LoadScene        ————");
 		// 调用旧场景的离开回调
-		if (sceneControllers.ContainsKey(currentScene)) {
-            Debug.Log($"{Log.perfix}调用场景 {currentScene} 的离开回调");
-            sceneControllers[currentScene].OnSceneLeave();
-        }
-        else {
-            Debug.LogWarning($"{Log.perfix}场景 {currentScene} 未注册离开回调");
-        }
-        if (onSceneLeaveCallbacks.ContainsKey(currentScene)) {
-            //Debug.Log($"{Log.perfix}调用其他系统触发的场景 {currentScene} 的离开回调");
-            onSceneLeaveCallbacks[currentScene]?.Invoke();
-        }
-
+        InvokeSceneLeave();
         // 加载新场景
 		Debug.Log($"{Log.perfix}从场景 {currentScene} 切换到场景 {scene}");
         AsyncOperation async = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(scene.ToString());
@@ -155,20 +89,9 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
             onProgress?.Invoke(async.progress);
             yield return null;
         }
-
         // 调用新场景的进入回调
         currentScene = scene;
-        if (sceneControllers.ContainsKey(scene)) {
-            Debug.Log($"{Log.perfix}调用场景 {scene} 的进入回调");
-            sceneControllers[scene].OnSceneEnter();
-        }
-        else {
-            Debug.LogWarning($"{Log.perfix}场景 {scene} 未注册进入回调");
-        }
-        if (onSceneEnterCallbacks.ContainsKey(scene)) {
-            //Debug.Log($"{Log.perfix}调用其他系统触发的场景 {scene} 的进入回调");
-            onSceneEnterCallbacks[scene]?.Invoke();
-        }
+        InvokeSceneEnter();
         Log.ReducePerfixLength();
     }
     /// <summary>
@@ -177,4 +100,79 @@ public class SceneLoaderManager : ManagerBase<SceneLoaderManager>
     public void SetProgressCallback(UnityAction<float> callback) {
         onProgress = callback;
     }
+
+
+
+
+
+
+    SceneControllerBase currentController;
+    void InvokeSceneEnter() {
+		//调用代码注册的回调
+		if (onSceneEnterCallbacks.ContainsKey(currentScene)) {
+            onSceneEnterCallbacks[currentScene]?.Invoke();
+        }
+        //查找场景上的控制器
+		var controllerObject = GameObject.Find("SceneController");
+        if (controllerObject == null) {
+            Debug.LogWarning($"{Log.perfix}场景 {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name} 中未找到名为 SceneController 的物体");
+            return;
+        }
+        //调用控制器回调
+        currentController = controllerObject.GetComponent<SceneControllerBase>();
+        if (currentController != null) {
+            Debug.Log($"{Log.perfix}调用场景 {currentScene} 的进入回调");
+            currentController.OnSceneEnter();
+        }
+        else {
+            Debug.LogError($"{Log.perfix}物体 SceneController 上没有挂载 SceneControllerBase 派生类");
+        }
+	}
+    void InvokeSceneLeave() {
+		//调用代码注册的回调
+		if (onSceneLeaveCallbacks.ContainsKey(currentScene)) {
+            onSceneLeaveCallbacks[currentScene]?.Invoke();
+        }
+        //调用控制器回调
+        if (currentController != null) {
+            Debug.Log($"{Log.perfix}调用场景 {currentScene} 的离开回调");
+            currentController.OnSceneLeave();
+        }
+        currentController = null;
+    }
+
+
+
+
+
+
+	//可以使用代码注册的回调
+	Dictionary<Scene, UnityAction> onSceneEnterCallbacks = new Dictionary<Scene, UnityAction>();
+	Dictionary<Scene, UnityAction> onSceneLeaveCallbacks = new Dictionary<Scene, UnityAction>();
+	public void RegisterSceneEnterCallback(Scene scene, UnityAction callback) {
+        if (onSceneEnterCallbacks.ContainsKey(scene)) {
+            onSceneEnterCallbacks[scene] += callback;
+        }
+        else {
+            onSceneEnterCallbacks[scene] = callback;
+        }
+	}
+	public void RegisterSceneLeaveCallback(Scene scene, UnityAction callback) {
+        if (onSceneLeaveCallbacks.ContainsKey(scene)) {
+            onSceneLeaveCallbacks[scene] += callback;
+        }
+        else {
+            onSceneLeaveCallbacks[scene] = callback;
+        }
+	}
+	public void UnregisterSceneEnterCallback(Scene scene, UnityAction callback) {
+        if (onSceneEnterCallbacks.ContainsKey(scene)) {
+            onSceneEnterCallbacks[scene] -= callback;
+        }
+	}
+	public void UnregisterSceneLeaveCallback(Scene scene, UnityAction callback) {
+        if (onSceneLeaveCallbacks.ContainsKey(scene)) {
+            onSceneLeaveCallbacks[scene] -= callback;
+        }
+	}
 }

@@ -47,6 +47,7 @@ public class CardSettingUI_AllCardsPanel : MonoBehaviour {
 		Debug.Log($"∞¥≈• - œ‘ æø®∆¨œÍ«È");
 		oneCardPanel.ShowOneCardsPanel();
 		oneCardPanel.UpdateOneCardPanel(cardIndex);
+		oneCardPanel.CloseCallback += ShowAllCardsPanel;
 		HideAllCardsPanel();
 	}
 
@@ -55,9 +56,13 @@ public class CardSettingUI_AllCardsPanel : MonoBehaviour {
 
 
 
+	public delegate void ShowDelegate();
+	public event ShowDelegate ShowCallback;
 	public void ShowAllCardsPanel() {
+		oneCardPanel.CloseCallback -= ShowAllCardsPanel;
 		gameObject.SetActive(true);
 		UpdateAllCardsPanel();
+		ShowCallback?.Invoke();
 	}
 	public void HideAllCardsPanel() {
 		gameObject.SetActive(false);

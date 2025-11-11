@@ -19,11 +19,6 @@ public class CardSettingChessInfo : MonoBehaviour {
     [SerializeField] TextMesh SkillText;
 
     public void UpdateChessInfo() {
-        if(card == null) {
-			//É¾³ý×Ô¼º
-			Destroy(gameObject);
-			return;
-        }
         indexText.text = (index + 1).ToString();
         if (card.cardType == CardType.Normal) {
             normalPanel.SetActive(true);

@@ -3,10 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class RoomSceneUI : MonoBehaviour {
-	void Awake() {
-		SceneLoaderManager.Instance.RegisterSceneEnterCallback(Scene.RoomScene, OnSceneEnter);
-		SceneLoaderManager.Instance.RegisterSceneLeaveCallback(Scene.RoomScene, OnSceneLeave);
-	}
 	public void OnSceneEnter() {
 		RoomSceneService.Instance.UpdateUIEvent += UpdatePlayerPanelData;
 		if (NetManager.Instance.isHostPlayer) {
@@ -27,8 +23,6 @@ public class RoomSceneUI : MonoBehaviour {
 		else {
 			NetManager.Instance.OnJoinRoomSuccess -= DisplayUI;
 		}
-		SceneLoaderManager.Instance.UnregisterSceneEnterCallback(Scene.RoomScene, OnSceneEnter);
-		SceneLoaderManager.Instance.UnregisterSceneLeaveCallback(Scene.RoomScene, OnSceneLeave);
 	}
 
 
