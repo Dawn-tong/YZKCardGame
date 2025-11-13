@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 78574529}
   - component: {fileID: 78574528}
   m_Layer: 5
-  m_Name: Return Title Button
+  m_Name: Go Back Title Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -251,7 +251,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 844171087}
         m_TargetAssemblyTypeName: UIHall, Assembly-CSharp
-        m_MethodName: ClickButtonToReturnTitle
+        m_MethodName: ClickButtonToGoBackTitle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -802,7 +802,7 @@ MonoBehaviour:
   creatRoomButton: {fileID: 1787995198}
   joinRoomButton: {fileID: 1775108739}
   joinNumberInputField: {fileID: 456359576}
-  returnTitleButton: {fileID: 78574528}
+  goBackTitleButton: {fileID: 78574528}
 --- !u!1 &1006176909
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,7 +19,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 
 
 
-
+	//创建
 	public (bool success, Player player) CreatPlayerAtFirstAvailableSeat() {
 		for (int i = 0; i < allPlayers.Length; i++) {
 			if (allPlayers[i] == null) {
@@ -30,6 +30,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		Debug.LogWarning("玩家数组已满，无法创建新玩家");
 		return (false, null);
 	}
+
 	public (bool success, Player player) CreatePlayerAtSpecificSeat(int seatID) {
 		if (seatID < 0 || seatID >= 4) {
 			Debug.LogWarning("座位ID无效，无法创建新玩家");
@@ -42,6 +43,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		Player player = CreatPlayerBySeatID(seatID);
 		return (true, player);
 	}
+
 	Player CreatPlayerBySeatID(int seatID) {
 		GameObject playerObj = new GameObject($"Player_{seatID}");
 		DontDestroyOnLoad(playerObj);
@@ -55,6 +57,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		return player;
 	}
 
+	//查找
 	public Player FindPlayerBySeatID(int seatID) {
 		if (seatID >= 0 && seatID < 4) {
 			if (allPlayers[seatID] != null) {
@@ -63,6 +66,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		}
 		return null;
 	}
+
 	public Player FindPlayerByNetID(ulong netID) {
 		for (int i = 0; i < allPlayers.Length; i++) {
 			if (allPlayers[i] != null && allPlayers[i].netID == netID) {
@@ -72,6 +76,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		return null;
 	}
 
+	//删除
 	public void RemovePlayerBySeatID(int seatID) {
 		if (seatID >= 0 && seatID < 4) {
 			if (allPlayers[seatID] != null) {
@@ -81,6 +86,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 			}
 		}
 	}
+
 	public void ClearAllPlayersExpectSelf() {
 		for (int i = 0; i < allPlayers.Length; i++) {
 			if (allPlayers[i] != null && i != currentPlayer.seatID) {
@@ -91,6 +97,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		}
 	}
 
+	//移动自身到某位置
 	public void MoveCurrentPlayerBaseSeatID(int seatID) {
 		if(seatID < 0 || seatID >= 4) {
 			Debug.LogWarning("座位ID无效，无法设置当前玩家");
@@ -106,5 +113,21 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		//重置当前玩家
 		currentPlayer = allPlayers[seatID];
 
+	}
+
+
+
+
+
+
+	//获取玩家数量
+	public int GetPlayerCount() {
+		int count = 0;
+		for (int i = 0; i < allPlayers.Length; i++) {
+			if (allPlayers[i] != null) {
+				count++;
+			}
+		}
+		return count;
 	}
 }

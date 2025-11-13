@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
 	static GameObject gameManagerObject;
 	public static GameObject GameManagerObject {
 		get {
@@ -18,12 +17,17 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+
+
+
+
+
 	delegate void InitDelegate();
 	static List<InitDelegate> initActions = new List<InitDelegate>();
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 	public static void GameStart() {
 		Log.IncreasePerfixLength();
-		Debug.Log($"{Log.perfix}————        GameManager.GameStart        ————");
+		Debug.Log($"{Log.perfix}————        Manager初始化        ————");
 		initActions.Add(PlayerManager.Instance.Init);
 		initActions.Add(NetManager.Instance.Init);
 		initActions.Add(SceneLoaderManager.Instance.Init);//需要在CameraDragManager之前
@@ -45,6 +49,18 @@ public class GameManager : MonoBehaviour
 			UIMessagePanel.Instance.AddMessage("初始化完成");
 			OnAllManagersFinishInit?.Invoke();
 			Log.ReducePerfixLength();
+			ServiceInit();
 		}
+	}
+
+
+
+
+
+
+	static void ServiceInit() {
+		Log.IncreasePerfixLength();
+		Debug.Log($"{Log.perfix}————        Service初始化        ————");
+		Log.ReducePerfixLength();
 	}
 }

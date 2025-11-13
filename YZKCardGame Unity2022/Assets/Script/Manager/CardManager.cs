@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using System.IO;
+using ProtoMessage;
+using System.Collections.Generic;
 
 public class CardManager : MonoBehaviour {
 	// 卡牌位置约束
@@ -20,7 +22,7 @@ public class CardManager : MonoBehaviour {
 		cardListPath = Path.Combine(Application.persistentDataPath, "CardList.json");
 		LoadCardsListFromLocal();
 	}
-
+	
 
 
 
@@ -61,6 +63,29 @@ public class CardManager : MonoBehaviour {
 		cardsList[cardIndex] = new Card() { cardType = CardType.Normal, level = 1, hp = 1, atk = 1, exists = true };
 		CardLevelChanged?.Invoke();
 		return true;
+	}
+	/// <summary>
+	/// 重写指定位置的卡片
+	/// </summary>
+	public bool OverwriteCard(int cardIndex, Card card) {
+		if (cardIndex < 0 || cardIndex >= MAX_TOTAL_CARDS) {
+			Debug.LogWarning($"卡片ID无效: {cardIndex}");
+			return false;
+		}
+		cardsList[cardIndex] = card;
+		CardLevelChanged?.Invoke();
+		return true;
+	}
+	public bool OverwriteCard(int cardIndex, CardInfo cardInfo) {
+		Card card = new Card();
+		card.index = cardInfo.index;
+		card.cardType = (CardType)cardInfo.cardType;
+		card.level = cardInfo.level;
+		card.hp = cardInfo.hp;
+		card.atk = cardInfo.atk;
+		card.positionX = cardInfo.positionX;
+		card.positionY = cardInfo.positionY;
+		return OverwriteCard(cardIndex, card);
 	}
 	/// <summary>
 	/// 删除指定位置的卡片
@@ -178,7 +203,8 @@ public class CardManager : MonoBehaviour {
 
 
 
-	
+
+
 	string cardListPath;    // 本地保存路径
 	/// <summary>
 	/// 保存卡组到本地
@@ -242,6 +268,20 @@ public class CardManager : MonoBehaviour {
 			InitCardsList();
 		}
 	}
+	void ApplyLoadedCards(Card[] source) {
+		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
+			cardsList = new Card[MAX_TOTAL_CARDS];
+		}
+		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
+			Card card = (source != null && i < source.Length) ? source[i] : null;
+			if (card == null || !card.exists) {
+				cardsList[i] = null;
+			}
+			else {
+				cardsList[i] = card;
+			}
+		}
+	}
 	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
 	void InitCardsList() {
 		cardsList[0] = new Card() { cardType = CardType.Bomb, exists = true };
@@ -260,21 +300,16 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 从网络加载卡组
 	/// </summary>
-	public void LoadCardsListFromNet(Card[] cardsList) {
-		ApplyLoadedCards(cardsList);
-	}
-	void ApplyLoadedCards(Card[] source) {
-		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
-			cardsList = new Card[MAX_TOTAL_CARDS];
+	public void LoadCardsListFromNet(List<CardInfo> cardInfos) {
+		ClearCards();
+		foreach (CardInfo cardInfo in cardInfos) {
+			OverwriteCard(cardInfo.index, cardInfo);
 		}
+	}
+	//清空cardsList
+	public void ClearCards() {
 		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
-			Card card = (source != null && i < source.Length) ? source[i] : null;
-			if (card == null || !card.exists) {
-				cardsList[i] = null;
-			}
-			else {
-				cardsList[i] = card;
-			}
+			cardsList[i] = null;
 		}
 	}
 

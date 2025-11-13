@@ -64,10 +64,11 @@ message PlayerJoinRoomRequest {
 	required string playerName = 1;
 }
 message PlayerJoinRoomResponse {
-	required bool successJoin = 1;
-	required int32 selfSeatID = 2;
-	required uint64 selfNetID = 3;//用于处理网络断开事件
-	repeated PlayerInfo allPlayers = 4;
+	required bool successJoin = 1;	//通知是否成功加入
+	required string reason = 2;		//如果加入失败则通知原因
+	required int32 selfSeatID = 3;	//如果成功加入则返回自己的座位ID
+	required uint64 selfNetID = 4;	//用于处理网络断开事件
+	repeated PlayerInfo allPlayers = 5;
 }
 message AddPlayerToRoomResponse {
 	required PlayerInfo player = 1;
@@ -98,5 +99,5 @@ message PlayerJoinGameRequest {
 	required PlayerInfo player = 1;
 }
 message GameStartResponse {
-	required PlayerInfo playersList = 1;
+	repeated PlayerInfo playersList = 1;
 }

@@ -300,9 +300,18 @@ namespace ProtoMessage
       get { return _successJoin; }
       set { _successJoin = value; }
     }
+    private string _reason;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"reason", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"reason", Order = 2, IsRequired = true)]
+    
+    public string reason
+    {
+      get { return _reason; }
+      set { _reason = value; }
+    }
     private int _selfSeatID;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"selfSeatID", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.Runtime.Serialization.DataMember(Name=@"selfSeatID", Order = 2, IsRequired = true)]
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"selfSeatID", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"selfSeatID", Order = 3, IsRequired = true)]
     
     public int selfSeatID
     {
@@ -310,8 +319,8 @@ namespace ProtoMessage
       set { _selfSeatID = value; }
     }
     private ulong _selfNetID;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"selfNetID", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.Runtime.Serialization.DataMember(Name=@"selfNetID", Order = 3, IsRequired = true)]
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"selfNetID", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"selfNetID", Order = 4, IsRequired = true)]
     
     public ulong selfNetID
     {
@@ -319,8 +328,8 @@ namespace ProtoMessage
       set { _selfNetID = value; }
     }
     private readonly global::System.Collections.Generic.List<ProtoMessage.PlayerInfo> _allPlayers = new global::System.Collections.Generic.List<ProtoMessage.PlayerInfo>();
-    [global::ProtoBuf.ProtoMember(4, Name=@"allPlayers", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.Runtime.Serialization.DataMember(Name=@"allPlayers", Order = 4, IsRequired = false)]
+    [global::ProtoBuf.ProtoMember(5, Name=@"allPlayers", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"allPlayers", Order = 5, IsRequired = false)]
     
     public global::System.Collections.Generic.List<ProtoMessage.PlayerInfo> allPlayers
     {
@@ -458,15 +467,15 @@ namespace ProtoMessage
   {
     public GameStartResponse() {}
     
-    private ProtoMessage.PlayerInfo _playersList;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"playersList", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    [global::System.Runtime.Serialization.DataMember(Name=@"playersList", Order = 1, IsRequired = true)]
+    private readonly global::System.Collections.Generic.List<ProtoMessage.PlayerInfo> _playersList = new global::System.Collections.Generic.List<ProtoMessage.PlayerInfo>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"playersList", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"playersList", Order = 1, IsRequired = false)]
     
-    public ProtoMessage.PlayerInfo playersList
+    public global::System.Collections.Generic.List<ProtoMessage.PlayerInfo> playersList
     {
       get { return _playersList; }
-      set { _playersList = value; }
     }
+  
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }

@@ -8,11 +8,9 @@ public class RoomSceneController : SceneControllerBase {
 
 	public override void OnSceneEnter() {
 		roomSceneUI.OnSceneEnter();
-		RoomSceneService.Instance.OnSceneEnter();
 	}
 
 	public override void OnSceneLeave() {
 		roomSceneUI.OnSceneLeave();
-		RoomSceneService.Instance.OnSceneLeave();
 	}
 }

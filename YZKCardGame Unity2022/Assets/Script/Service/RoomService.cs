@@ -2,13 +2,12 @@ using Network;
 using ProtoMessage;
 using UnityEngine;
 
-public class RoomSceneService
-{
-	static RoomSceneService instance;
-	public static RoomSceneService Instance {
+public class RoomService {
+	static RoomService instance;
+	public static RoomService Instance {
 		get {
 			if (instance == null)
-				instance = new RoomSceneService();
+				instance = new RoomService();
 			return instance;
 		}
 	}
@@ -18,34 +17,35 @@ public class RoomSceneService
 
 
 
-	//进入场景时
-	public void OnSceneEnter() {
+	bool isGameing = false;	//用于记录是否正在游戏中
+	//进入房间前
+	public void BeforeEnterRoom() {
+		isGameing = false;
 		if (NetManager.Instance.isHostPlayer) {
 			MessageDistributer<ulong>.Instance.Subscribe<PlayerJoinRoomRequest>(OnPlayerJoinRoomRequest);
 			MessageDistributer<ulong>.Instance.Subscribe<ChangeReadyRequest>(OnPlayerChangeReadyRequest);
+			MessageDistributer<ulong>.Instance.Subscribe<PlayerJoinGameRequest>(OnPlayerJoinGameRequest);
 			NetManager.Instance.NetDisconnected += OnNetDisconnected;
-			// 主机玩家创建房间
-			NetManager.Instance.CreateRelayRoom(4);
 		}
 		else {
 			MessageDistributer<ulong>.Instance.Subscribe<PlayerJoinRoomResponse>(OnPlayerJoinRoomResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<AddPlayerToRoomResponse>(OnAddPlayerToRoomResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<LeaveRoomResponse>(OnLeaveRoomResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<ChangeReadyResponse>(OnPlayerChangeReadyResponse);
-			//MessageDistributer<ulong>.Instance.Subscribe<RoomCloseResponse>(OnRoomCloseResponse);
+			MessageDistributer<ulong>.Instance.Subscribe<ReadyToStartResponse>(OnReadyToStartResponse);
+			MessageDistributer<ulong>.Instance.Subscribe<GameStartResponse>(OnGameStartResponse);
 			NetManager.Instance.NetDisconnected += OnRoomCloseResponse;
 			NetManager.Instance.OnJoinRoomSuccess += SendPlayerJoinRoomRequest;
 			NetManager.Instance.OnJoinRoomFailed += OnJoinRoomFailed;
-			if (string.IsNullOrEmpty(NetManager.Instance.GetCurrentJoinCode())) {
-				SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
-			}
 		}
 	}
-	//离开场景时
-	public void OnSceneLeave() {
+
+	//离开房间后
+	public void AfterLeaveRoom() {
 		if (NetManager.Instance.isHostPlayer) {
 			MessageDistributer<ulong>.Instance.Unsubscribe<PlayerJoinRoomRequest>(OnPlayerJoinRoomRequest);
 			MessageDistributer<ulong>.Instance.Unsubscribe<ChangeReadyRequest>(OnPlayerChangeReadyRequest);
+			MessageDistributer<ulong>.Instance.Unsubscribe<PlayerJoinGameRequest>(OnPlayerJoinGameRequest);
 			NetManager.Instance.NetDisconnected -= OnNetDisconnected;
 		}
 		else {
@@ -53,19 +53,24 @@ public class RoomSceneService
 			MessageDistributer<ulong>.Instance.Unsubscribe<AddPlayerToRoomResponse>(OnAddPlayerToRoomResponse);
 			MessageDistributer<ulong>.Instance.Unsubscribe<LeaveRoomResponse>(OnLeaveRoomResponse);
 			MessageDistributer<ulong>.Instance.Unsubscribe<ChangeReadyResponse>(OnPlayerChangeReadyResponse);
-			//MessageDistributer<ulong>.Instance.Unsubscribe<RoomCloseResponse>(OnRoomCloseResponse);
+			MessageDistributer<ulong>.Instance.Unsubscribe<ReadyToStartResponse>(OnReadyToStartResponse);
+			MessageDistributer<ulong>.Instance.Unsubscribe<GameStartResponse>(OnGameStartResponse);
 			NetManager.Instance.NetDisconnected -= OnRoomCloseResponse;
 			NetManager.Instance.OnJoinRoomSuccess -= SendPlayerJoinRoomRequest;
 			NetManager.Instance.OnJoinRoomFailed -= OnJoinRoomFailed;
 		}
 	}
+
 	//加入失败时
 	void OnJoinRoomFailed() {
+		AfterLeaveRoom();
 		SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 	}
-	//离开房间时
-	void OnLeaveRoom() {
+
+	//离开房间
+	void LeaveRoom() {
 		NetManager.Instance.LeaveRoom();
+		AfterLeaveRoom();
 		PlayerManager.Instance.ClearAllPlayersExpectSelf();
 		PlayerManager.Instance.MoveCurrentPlayerBaseSeatID(0);
 		PlayerManager.Instance.currentPlayer.SetReady(false);
@@ -91,21 +96,27 @@ public class RoomSceneService
 		NetManager.Instance.SendMessageToAll(message);
 		Log.ReducePerfixLength();
 	}
+
 	//服务器:发送房间销毁响应(点击按钮触发)
 	public void SendRoomCloseResponse() {
-		//NetMessage message = new NetMessage();
-		//message.Response = new NetMessageResponse();
-		//message.Response.roomClose = new RoomCloseResponse();
-
-		//Log.IncreasePerfixLength();
-		//Debug.Log($"{Log.perfix}————        通知所有玩家        ————");
-		//Debug.Log($"{Log.perfix}消息内容:房间关闭通知");
-		//UIMessagePanel.Instance.AddMessage($"通知所有玩家，房间关闭。");
-		//NetManager.Instance.SendMessageToAll(message);
-		//Log.ReducePerfixLength();
-
-		OnLeaveRoom();
+		LeaveRoom();
 	}
+
+	//服务器:发送准备开始游戏(点击按钮触发)
+	public void SendReadyToStartResponse() {
+		isGameing = true;
+		receivedCardsCount = 1;	//已经获取的卡组数量为1(自己算1)
+		NetMessage message = new NetMessage();
+		message.Response = new NetMessageResponse();
+		message.Response.readyToStart = new ReadyToStartResponse();
+		Log.IncreasePerfixLength();
+		Debug.Log($"{Log.perfix}————        通知所有玩家        ————");
+		Debug.Log($"{Log.perfix}消息内容:服务器准备开始游戏");
+		UIMessagePanel.Instance.AddMessage($"通知所有玩家:服务器准备开始游戏");
+		NetManager.Instance.SendMessageToAll(message);
+		Log.ReducePerfixLength();
+	}
+
 	//客户端:发送玩家进入请求(通过事件触发)
 	void SendPlayerJoinRoomRequest() {
 		NetMessage message = new NetMessage();
@@ -120,6 +131,7 @@ public class RoomSceneService
 		NetManager.Instance.SendMessageToServer(message);
 		Log.ReducePerfixLength();
 	}
+
 	//客户端: 发送玩家改变准备状态请求(点击按钮触发)
 	public void SendSelfChangeReadyRequest() {
 		NetMessage message = new NetMessage();
@@ -134,20 +146,10 @@ public class RoomSceneService
 		NetManager.Instance.SendMessageToServer(message);
 		Log.ReducePerfixLength();
 	}
+
 	//客户端:发送离开房间请求(点击按钮触发)
 	public void SendLeaveRoomRequest() {
-		//NetMessage message = new NetMessage();
-		//message.Request = new NetMessageRequest();
-		//message.Request.leaveRoom = new LeaveRoomRequest();
-		//message.Request.leaveRoom.selfSeatID = PlayerManager.Instance.currentPlayer.seatID;
-
-		//Log.IncreasePerfixLength();
-		//Debug.Log($"{Log.perfix}————        发送消息给服务器        ————");
-		//Debug.Log($"{Log.perfix}消息内容:自己离开了房间");
-		//UIMessagePanel.Instance.AddMessage($"通知服务器:自己离开了房间");
-		//NetManager.Instance.SendMessageToServer(message);
-		//Log.ReducePerfixLength();
-		OnLeaveRoom();
+		LeaveRoom();
 	}
 
 
@@ -157,38 +159,32 @@ public class RoomSceneService
 
 	public delegate void UpdateUIDelegate();
 	public event UpdateUIDelegate UpdateUIEvent;
+
 	/// <summary>
 	/// 服务器端处理玩家加入房间的请求
 	/// </summary>
-	void OnPlayerJoinRoomRequest(ulong senderId, PlayerJoinRoomRequest request) {
+	void OnPlayerJoinRoomRequest(ulong senderID, PlayerJoinRoomRequest request) {
+		//尝试为服务器添加新玩家
 		Debug.Log($"{Log.perfix}消息内容:玩家(Name={request.playerName})申请加入房间");
 		UIMessagePanel.Instance.AddMessage($"接收:玩家(Name={request.playerName})申请加入房间");
-		// 检查是否有空位置
-		(bool success, Player newPlayer) = PlayerManager.Instance.CreatPlayerAtFirstAvailableSeat();
-		if (!success) {
-			NetMessage failureMessage = new NetMessage();
-			failureMessage.Response = new NetMessageResponse();
-			failureMessage.Response.PlayerJoinRoom = new PlayerJoinRoomResponse();
-			failureMessage.Response.PlayerJoinRoom.successJoin = false;
-			Log.IncreasePerfixLength();
-			Debug.Log($"{Log.perfix}————        发送消息给玩家{senderId}        ————");
-			Debug.Log($"{Log.perfix}消息内容:房间进入失败");
-			UIMessagePanel.Instance.AddMessage($"通知玩家{senderId}:房间进入失败");
-			NetManager.Instance.SendMessageToPlayer(senderId, failureMessage);
-			Log.ReducePerfixLength();
+		if (isGameing) {
+			SendFailureMessage(senderID, "游戏已开始");
 			return;
 		}
-		newPlayer.SetNetID(senderId).SetPlayerName(request.playerName);
-		//更新服务器自己的UI
+		(bool success, Player newPlayer) = PlayerManager.Instance.CreatPlayerAtFirstAvailableSeat();
+		if (!success) {
+			SendFailureMessage(senderID, "房间已满");
+			return;
+		}
+		newPlayer.SetNetID(senderID).SetPlayerName(request.playerName);
 		UpdateUIEvent?.Invoke();
-
 		//向新加入的玩家发送完整的玩家列表（包括他自己）
 		NetMessage message = new NetMessage();
 		message.Response = new NetMessageResponse();
 		message.Response.PlayerJoinRoom = new PlayerJoinRoomResponse();
 		message.Response.PlayerJoinRoom.successJoin = true;
 		message.Response.PlayerJoinRoom.selfSeatID = newPlayer.seatID;
-		message.Response.PlayerJoinRoom.selfNetID = senderId;
+		message.Response.PlayerJoinRoom.selfNetID = senderID;
 		for (int i = 0; i < PlayerManager.Instance.allPlayers.Length; i++) {
 			Player player = PlayerManager.Instance.allPlayers[i];
 			if (player != null) {
@@ -201,13 +197,12 @@ public class RoomSceneService
 			}
 		}
 		Log.IncreasePerfixLength();
-		Debug.Log($"{Log.perfix}————        发送消息给玩家{senderId}        ————");
+		Debug.Log($"{Log.perfix}————        发送消息给玩家{senderID}        ————");
 		Debug.Log($"{Log.perfix}消息内容: 进入成功，并告知所有玩家名单。");
-		UIMessagePanel.Instance.AddMessage($"通知玩家{senderId}:房间进入成功，并告知所有玩家名单");
-		NetManager.Instance.SendMessageToPlayer(senderId, message);
+		UIMessagePanel.Instance.AddMessage($"通知玩家{senderID}:房间进入成功，并告知所有玩家名单");
+		NetManager.Instance.SendMessageToPlayer(senderID, message);
 		Log.ReducePerfixLength();
-
-		// 4. 通知其他已在房间的玩家，有新玩家加入（只发送新玩家的信息）
+		//通知其他已在房间的玩家，有新玩家加入（只发送新玩家的信息）
 		NetMessage notifyMessage = new NetMessage();
 		notifyMessage.Response = new NetMessageResponse();
 		notifyMessage.Response.AddPlayerToRoom = new AddPlayerToRoomResponse();
@@ -217,19 +212,34 @@ public class RoomSceneService
 			isReady = newPlayer.isReady
 		};
 		Log.IncreasePerfixLength();
-		Debug.Log($"{Log.perfix}————        通知除了发送者(NetID={senderId})的其余玩家        ————");
-		Debug.Log($"{Log.perfix}消息内容:NetID={senderId}的玩家进入了房间");
-		UIMessagePanel.Instance.AddMessage($"通知其余玩家，NetID={senderId}的玩家进入了房间");
-		NetManager.Instance.SendMessageToAll(notifyMessage, senderId);
+		Debug.Log($"{Log.perfix}————        通知除了发送者(NetID={senderID})的其余玩家        ————");
+		Debug.Log($"{Log.perfix}消息内容:NetID={senderID}的玩家进入了房间");
+		UIMessagePanel.Instance.AddMessage($"通知其余玩家，NetID={senderID}的玩家进入了房间");
+		NetManager.Instance.SendMessageToAll(notifyMessage, senderID);
 		Log.ReducePerfixLength();
 	}
+
+	void SendFailureMessage(ulong senderID, string reason) {
+		NetMessage failureMessage = new NetMessage();
+		failureMessage.Response = new NetMessageResponse();
+		failureMessage.Response.PlayerJoinRoom = new PlayerJoinRoomResponse();
+		failureMessage.Response.PlayerJoinRoom.successJoin = false;
+		failureMessage.Response.PlayerJoinRoom.reason = reason;
+		Log.IncreasePerfixLength();
+		Debug.Log($"{Log.perfix}————        发送消息给玩家{senderID}        ————");
+		Debug.Log($"{Log.perfix}消息内容:房间进入失败，原因: {reason}");
+		UIMessagePanel.Instance.AddMessage($"通知玩家{senderID}:房间进入失败，原因: {reason}");
+		NetManager.Instance.SendMessageToPlayer(senderID, failureMessage);
+		Log.ReducePerfixLength();
+	}
+
 	/// <summary>
 	/// 服务器处理玩家改变准备状态的请求
 	/// </summary>
-	void OnPlayerChangeReadyRequest(ulong senderId, ChangeReadyRequest request) {
-		Debug.Log($"{Log.perfix}消息内容:玩家(NetID={senderId})设置准备状态为{request.readyState}");
-		UIMessagePanel.Instance.AddMessage($"接收:玩家(NetID={senderId})设置准备状态为{request.readyState}");
-		Player player = PlayerManager.Instance.FindPlayerByNetID(senderId);
+	void OnPlayerChangeReadyRequest(ulong senderID, ChangeReadyRequest request) {
+		Debug.Log($"{Log.perfix}消息内容:玩家(NetID={senderID})设置准备状态为{request.readyState}");
+		UIMessagePanel.Instance.AddMessage($"接收:玩家(NetID={senderID})设置准备状态为{request.readyState}");
+		Player player = PlayerManager.Instance.FindPlayerByNetID(senderID);
 		if (player != null) {
 			player.SetReady(request.readyState);
 			UpdateUIEvent?.Invoke();
@@ -240,12 +250,57 @@ public class RoomSceneService
 		message.Response.changeReady.seatID = player.seatID;
 		message.Response.changeReady.readyState = request.readyState;
 		Log.IncreasePerfixLength();
-		Debug.Log($"{Log.perfix}————        通知除了发送者(NetID={senderId})的其余玩家        ————");
+		Debug.Log($"{Log.perfix}————        通知除了发送者(NetID={senderID})的其余玩家        ————");
 		Debug.Log($"{Log.perfix}消息内容:玩家(座位={player.seatID})的准备状态为{request.readyState}");
 		UIMessagePanel.Instance.AddMessage($"通知其余玩家，玩家(座位={player.seatID})的准备状态为{request.readyState}");
-		NetManager.Instance.SendMessageToAll(message, senderId);
+		NetManager.Instance.SendMessageToAll(message, senderID);
 		Log.ReducePerfixLength();
 	}
+
+	//已经获取的卡组数量
+	int receivedCardsCount;
+	/// <summary>
+	/// 服务器接收玩家卡组
+	/// </summary>
+	void OnPlayerJoinGameRequest(ulong senderID, PlayerJoinGameRequest request) {
+		Debug.Log($"{Log.perfix}消息内容:玩家(NetID={senderID})的卡组");
+		UIMessagePanel.Instance.AddMessage($"接收:玩家(NetID={senderID})的卡组信息");
+		Player player = PlayerManager.Instance.FindPlayerByNetID(senderID);
+		if (player != null) {
+			receivedCardsCount++;
+			player.cardManager.LoadCardsListFromNet(request.player.cardsList);
+		}
+		//当获取到所有玩家卡组后，通知所有玩家所有的卡组
+		if(receivedCardsCount == PlayerManager.Instance.GetPlayerCount()) {
+			SendAllPlayersCardsListToAllPlayers();
+		}
+	}
+
+	void SendAllPlayersCardsListToAllPlayers() {
+		NetMessage message = new NetMessage();
+		message.Response = new NetMessageResponse();
+		message.Response.gameStart = new GameStartResponse();
+		foreach (Player p in PlayerManager.Instance.allPlayers) {
+			if(p == null) continue;
+			PlayerInfo playerInfo = new PlayerInfo();
+			playerInfo.seatID = p.seatID;
+			playerInfo.playerName = p.playerName;
+			foreach (Card card in p.cardManager.cardsList) {
+				CardInfo cardInfo = new CardInfo();
+				cardInfo.index = card.index;
+				cardInfo.cardType = (int)card.cardType;
+				cardInfo.level = card.level;
+				cardInfo.hp = card.hp;
+				cardInfo.atk = card.atk;
+				cardInfo.positionX = card.positionX;
+				cardInfo.positionY = card.positionY;
+				playerInfo.cardsList.Add(cardInfo);
+			}
+			message.Response.gameStart.playersList.Add(playerInfo);
+		}
+		NetManager.Instance.SendMessageToAll(message);
+	}
+
 	/// <summary>
 	/// 服务器接收玩家掉线(通过Relay断连回调触发)
 	/// </summary>
@@ -274,7 +329,13 @@ public class RoomSceneService
 	/// <summary>
 	/// 客户端接收服务器的玩家加入房间响应（新玩家收到完整玩家列表）
 	/// </summary>
-	void OnPlayerJoinRoomResponse(ulong senderId, PlayerJoinRoomResponse response) {
+	void OnPlayerJoinRoomResponse(ulong senderID, PlayerJoinRoomResponse response) {
+		if (!response.successJoin) {
+			Debug.Log($"{Log.perfix}消息内容:房间进入失败，原因: {response.reason}");
+			UIMessagePanel.Instance.AddMessage($"接收:房间进入失败，原因: {response.reason}");
+			LeaveRoom();
+			return;
+		}
 		Debug.Log($"{Log.perfix}消息内容:接收所有玩家列表，玩家数量 = {response.allPlayers.Count}"); 
 		UIMessagePanel.Instance.AddMessage($"接收:成功进入房间");
 		UIMessagePanel.Instance.AddMessage($"接收:所有玩家列表");
@@ -298,10 +359,11 @@ public class RoomSceneService
 		// 更新UI显示
 		UpdateUIEvent?.Invoke();
 	}
+
 	/// <summary>
 	/// 客户端接收新玩家加入房间的通知（原有玩家收到单个新玩家信息）
 	/// </summary>
-	void OnAddPlayerToRoomResponse(ulong senderId, AddPlayerToRoomResponse response) {
+	void OnAddPlayerToRoomResponse(ulong senderID, AddPlayerToRoomResponse response) {
 		Debug.Log($"{Log.perfix}消息内容:玩家(座位={response.player.seatID})加入房间，玩家名称={response.player.playerName}");
 		UIMessagePanel.Instance.AddMessage($"接收:玩家(座位={response.player.seatID})加入房间，玩家名称={response.player.playerName}");
 		(bool success, Player newPlayer) = PlayerManager.Instance.CreatePlayerAtSpecificSeat(response.player.seatID);
@@ -314,10 +376,11 @@ public class RoomSceneService
 		// 更新UI显示
 		UpdateUIEvent?.Invoke();
 	}
+
 	/// <summary>
 	/// 客户端处理玩家改变准备状态的响应
 	/// </summary>
-	void OnPlayerChangeReadyResponse(ulong senderId, ChangeReadyResponse response) {
+	void OnPlayerChangeReadyResponse(ulong senderID, ChangeReadyResponse response) {
 		Debug.Log($"{Log.perfix}消息内容:玩家(座位={response.seatID})的准备状态为{response.readyState}");
 		UIMessagePanel.Instance.AddMessage($"接收:玩家(座位={response.seatID})的准备状态为{response.readyState}");
 		Player player = PlayerManager.Instance.FindPlayerBySeatID(response.seatID);
@@ -326,20 +389,76 @@ public class RoomSceneService
 			UpdateUIEvent?.Invoke();
 		}
 	}
+
 	/// <summary>
 	/// 客户端收到其他玩家离开的通知
 	/// </summary>
-	void OnLeaveRoomResponse(ulong arg1, LeaveRoomResponse response) {
+	void OnLeaveRoomResponse(ulong _, LeaveRoomResponse response) {
 		Debug.Log($"{Log.perfix}消息内容:玩家(座位={response.triggerSeatID})离开房间");
 		UIMessagePanel.Instance.AddMessage($"接收:玩家(座位={response.triggerSeatID})离开房间");
 		PlayerManager.Instance.RemovePlayerBySeatID(response.triggerSeatID);
 		// 更新UI显示
 		UpdateUIEvent?.Invoke();
 	}
+
 	/// <summary>
 	/// 客户端接收服务器房间关闭(通过Relay断连回调触发)
+	void OnRoomCloseResponse(ulong _) {
+		LeaveRoom();
+	}
+
+	/// <summary>
+	/// 客户端收到服务器准备开始游戏的通知
 	/// </summary>
-	void OnRoomCloseResponse(ulong clientID) {
-		OnLeaveRoom();
+	void OnReadyToStartResponse(ulong senderID, ReadyToStartResponse response) {
+		Debug.Log($"{Log.perfix}消息内容:服务器准备开始游戏，请求自己发送卡组");
+		UIMessagePanel.Instance.AddMessage($"接收:服务器准备开始游戏，请求自己发送卡组");
+		SceneLoaderManager.Instance.LoadScene(Scene.GameScene);
+
+		NetMessage message = new NetMessage();
+		message.Request = new NetMessageRequest();
+		message.Request.playerJoinGame = new PlayerJoinGameRequest();
+		message.Request.playerJoinGame.player = new PlayerInfo();
+		foreach (Card card in PlayerManager.Instance.currentPlayer.cardManager.cardsList) {
+			message.Request.playerJoinGame.player.cardsList.Add(new CardInfo {
+				index = card.index,
+				cardType = (int)card.cardType,
+				level = card.level,
+				hp = card.hp,
+				atk = card.atk,
+				positionX = card.positionX,
+				positionY = card.positionY,
+			});
+		}
+		NetManager.Instance.SendMessageToServer(message);
+	}
+
+	/// <summary>
+	/// 客户端收到服务器游戏开始的通知
+	/// </summary>
+	void OnGameStartResponse(ulong senderID, GameStartResponse response) {
+		Debug.Log($"{Log.perfix}消息内容:接收服务器发送的所有玩家卡组");
+		UIMessagePanel.Instance.AddMessage($"接收:接收服务器发送的所有玩家卡组");
+		foreach (PlayerInfo playerInfo in response.playersList) {
+			//跳过对自己的设置
+			if(playerInfo.seatID == PlayerManager.Instance.currentPlayer.seatID) {
+				continue;
+			}
+			Player player = PlayerManager.Instance.FindPlayerBySeatID(playerInfo.seatID);
+			if (player == null) {
+				Debug.LogWarning($"{Log.perfix}警告:玩家(座位={playerInfo.seatID})不存在");
+				UIMessagePanel.Instance.AddMessage($"警告:玩家(座位={playerInfo.seatID})不存在");
+				//在此处创建一个玩家
+				(bool success, Player newPlayer) = PlayerManager.Instance.CreatePlayerAtSpecificSeat(playerInfo.seatID);
+				if (!success) {
+					Debug.LogError($"{Log.perfix}错误:创建玩家失败，座位ID = {playerInfo.seatID}");
+					UIMessagePanel.Instance.AddMessage($"错误:创建玩家失败，座位ID = {playerInfo.seatID}");
+					continue;
+				}
+				player = newPlayer;
+				player.SetPlayerName(playerInfo.playerName);
+			}
+			player.cardManager.LoadCardsListFromNet(playerInfo.cardsList);
+		}
 	}
 }
