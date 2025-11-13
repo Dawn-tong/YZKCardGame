@@ -1,9 +1,28 @@
 package ProtoMessage;
+
+
+
+
+
+
 //定义结构
 message PlayerInfo {
 	required int32 seatID = 1;//座位ID
 	required string playerName = 2;
 	required bool isReady = 3;
+	repeated CardInfo cardsList = 4;
+}
+
+
+
+message CardInfo {
+	required int32 index = 1;
+	required int32 cardType = 2;
+	required int32 level = 3;
+	required int32 hp = 4;
+	required int32 atk = 5;
+	required int32 positionX = 6;
+	required int32 positionY = 7;
 }
 
 
@@ -16,14 +35,24 @@ message NetMessage {
 	required NetMessageResponse Response = 2;
 }
 message NetMessageRequest {
-	required PlayerJoinRoomRequest playerJoinRoom = 1;
-	required ChangeReadyRequest changeReady = 2;
+
+	required PlayerJoinRoomRequest playerJoinRoom = 1;	//玩家加入请求数据
+
+	required ChangeReadyRequest changeReady = 2;		//改变自身的准备状态
+
+	required PlayerJoinGameRequest playerJoinGame = 3;	//回应服务器"ReadyToStart":自身的卡牌组
 }
 message NetMessageResponse {
-	required PlayerJoinRoomResponse PlayerJoinRoom = 1;
-	required AddPlayerToRoomResponse AddPlayerToRoom = 2;
-	required ChangeReadyResponse changeReady = 3;
-	required LeaveRoomResponse leaveRoom = 4;
+
+	required PlayerJoinRoomResponse PlayerJoinRoom = 1;	//通知加入的玩家:所有玩家的信息
+	required AddPlayerToRoomResponse AddPlayerToRoom = 2;//通知其他玩家:加入的玩家信息
+
+	required ChangeReadyResponse changeReady = 3;		//有玩家改变了准备状态
+
+	required LeaveRoomResponse leaveRoom = 4;			//有玩家离开房间
+
+	required ReadyToStartResponse readyToStart = 5;		//发送游戏开始响应,等待客户端回应自己的卡牌组
+	required GameStartResponse gameStart = 6;			//接收完所有玩家卡牌,通知所有玩家所有的卡牌组
 }
 
 
@@ -45,6 +74,7 @@ message AddPlayerToRoomResponse {
 }
 
 
+
 message ChangeReadyRequest {
 	required bool readyState = 1;
 }
@@ -57,4 +87,16 @@ message ChangeReadyResponse {
 
 message LeaveRoomResponse {
 	required int32 triggerSeatID = 1;	
+}
+
+
+
+message ReadyToStartResponse {
+	
+}
+message PlayerJoinGameRequest {
+	required PlayerInfo player = 1;
+}
+message GameStartResponse {
+	required PlayerInfo playersList = 1;
 }

@@ -1,10 +1,12 @@
 using UnityEngine;
 
-public class PlayerManager : ManagerBase<PlayerManager>
-{
+public class PlayerManager : ManagerBase<PlayerManager> {
+
+	public const int MAX_PLAYER_NUM = 4;
+
 	public Player currentPlayer;
-	public GameObject[] playerObjects = new GameObject[4];
-	public Player[] allPlayers = new Player[4];
+	public GameObject[] playerObjects = new GameObject[MAX_PLAYER_NUM];
+	public Player[] allPlayers = new Player[MAX_PLAYER_NUM];
 	public void Init() {
 		// 创建主机玩家
 		(_, currentPlayer) = CreatPlayerAtFirstAvailableSeat();

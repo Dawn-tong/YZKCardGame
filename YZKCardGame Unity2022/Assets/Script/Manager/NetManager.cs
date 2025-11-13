@@ -76,6 +76,7 @@ public class NetManager : ManagerBase<NetManager> {
 	// 创建Relay房间并启动主机
 	public async void CreateRelayRoom(int maxPlayers = 4) {
 		Debug.Log($"{Log.perfix}正在创建房间...");
+		bool hostStarted = false;
 		try {
 			// 1. 创建Relay分配
 			var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
@@ -89,30 +90,30 @@ public class NetManager : ManagerBase<NetManager> {
 				allocation.ConnectionData
 			);
 			// 3. 启动主机 - 添加详细日志
-			bool hostStarted = NetworkManager.Singleton.StartHost();
+			hostStarted = NetworkManager.Singleton.StartHost();
 			//Debug.Log($"StartHost() 返回值: {hostStarted}");
-			if (hostStarted) {
-				// 等待一帧让网络状态更新
-				await System.Threading.Tasks.Task.Delay(100);
-				//Debug.Log($"网络状态 - IsServer: {NetworkManager.Singleton.IsServer}, IsHost: {NetworkManager.Singleton.IsHost}");
-
-				// 网络启动后注册消息处理器
-				RegisterMessageHandler();
-				PlayerManager.Instance.currentPlayer.SetNetID(GetLocalClientId());
-				Debug.Log($"房间创建成功！加入码 = {currentJoinCode}; seatID = {GetLocalClientId()}");
-				UIMessagePanel.Instance.AddMessage($"房间创建成功！将加入码分享给朋友即可加入房间");
-				OnCreatRoomSuccess?.Invoke();
-			}
-			else {
-				Debug.LogError("StartHost() 启动失败！");
-				UIMessagePanel.Instance.AddMessage("房间创建失败，请重试");
-				// 回退到大厅场景
-				SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
-			}
 		}
 		catch (System.Exception e) {
 			Debug.LogError($"创建房间失败: {e.Message}");
 			UIMessagePanel.Instance.AddMessage($"创建房间失败: {e.Message}");
+			SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
+		}
+		if (hostStarted) {
+			// 等待一帧让网络状态更新
+			await System.Threading.Tasks.Task.Delay(100);
+			//Debug.Log($"网络状态 - IsServer: {NetworkManager.Singleton.IsServer}, IsHost: {NetworkManager.Singleton.IsHost}");
+
+			// 网络启动后注册消息处理器
+			RegisterMessageHandler();
+			PlayerManager.Instance.currentPlayer.SetNetID(GetLocalClientId());
+			Debug.Log($"房间创建成功！加入码 = {currentJoinCode}; seatID = {GetLocalClientId()}");
+			UIMessagePanel.Instance.AddMessage($"房间创建成功！将加入码分享给朋友即可加入房间");
+			OnCreatRoomSuccess?.Invoke();
+		}
+		else {
+			Debug.LogError("StartHost() 启动失败！");
+			UIMessagePanel.Instance.AddMessage("房间创建失败，请重试");
+			// 回退到大厅场景
 			SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 		}
 	}

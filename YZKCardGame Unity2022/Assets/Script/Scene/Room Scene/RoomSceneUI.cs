@@ -36,9 +36,14 @@ public class RoomSceneUI : MonoBehaviour {
 	public GameObject[] playerTextPanel = new GameObject[4];
 	public Text[] playerNameText = new Text[4];
 	public Text[] readyStateText = new Text[4];
+	public Button startButton;
 	public Button readyButton;
 	public Text readyButtonText;
 	public Button leaveRoomButton;
+	public void ClickButtonToStartGame() {
+		Debug.Log("按钮 - 开始游戏");
+
+	}
 	public void ClickButtonToChangeReady()
 	{
 		if (PlayerManager.Instance.currentPlayer.isReady) {
@@ -88,20 +93,42 @@ public class RoomSceneUI : MonoBehaviour {
 		UpdatePlayerPanelData();
 	}
 	void UpdatePlayerPanelData() {
-		for (int i = 0; i < PlayerManager.Instance.allPlayers.Length; i++) {
+
+		int countPlayer = 0;	//总人数
+		bool allReady = true;	//所有玩家均准备
+		
+		for (int i = 0; i < PlayerManager.MAX_PLAYER_NUM; i++) {
 			Player player = PlayerManager.Instance.allPlayers[i];
 			if (player != null) {
-				playerTextPanel[i].SetActive(true);
+				//总人数
+				countPlayer++;
+				//设置玩家名字
 				string playerName = player.playerName;
 				if (player == PlayerManager.Instance.currentPlayer) {
 					playerName += "\n(自己)";
 				}
 				playerNameText[i].text = playerName;
-				readyStateText[i].text = player.isReady ? "√" : "未准备";
+				//设置玩家准备状态
+				if (player.isReady) {
+					readyStateText[i].text = "√";
+				}
+				else {
+					readyStateText[i].text = "未准备";
+					allReady = false;
+				}
+				
+				playerTextPanel[i].SetActive(true);
 			}
 			else {
 				playerTextPanel[i].SetActive(false);
 			}
+		}
+		//服务器发现所有玩家均准备
+		if (NetManager.Instance.isHostPlayer && allReady && countPlayer >= 2) {
+			startButton.gameObject.SetActive(true);
+		}
+		else {
+			startButton.gameObject.SetActive(false);
 		}
 	}
 }

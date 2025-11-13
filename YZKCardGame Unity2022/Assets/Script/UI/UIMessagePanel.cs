@@ -119,6 +119,7 @@ public class UIMessagePanel : MonoBehaviour
 		//设置初始不显示
 		messageTextObj.SetActive(false);
 	}
+
     public void AddMessage(string message) {
 		GameObject textObj = Instantiate(messageTextObj, content);
 		textObj.GetComponent<Text>().text = DateTime.Now.ToString("[HH:mm:ss]") + message;
