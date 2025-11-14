@@ -109,6 +109,9 @@ public class CardSettingBoard : MonoBehaviour {
 	}
 	//É¾³ýÆå×Ó
 	public void DeleteBoardChess(int positionX, int positionY) {
+		if (positionX == -1) {
+			return;
+		}
 		Destroy(chessBoard[positionX, positionY].gameObject);
 		chessBoard[positionX, positionY] = null;
 	}

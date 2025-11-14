@@ -1,5 +1,6 @@
 using Network;
 using ProtoMessage;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RoomService {
@@ -263,8 +264,8 @@ public class RoomService {
 	/// 服务器接收玩家卡组
 	/// </summary>
 	void OnPlayerJoinGameRequest(ulong senderID, PlayerJoinGameRequest request) {
-		Debug.Log($"{Log.perfix}消息内容:玩家(NetID={senderID})的卡组");
-		UIMessagePanel.Instance.AddMessage($"接收:玩家(NetID={senderID})的卡组信息");
+		Debug.Log($"{Log.perfix}消息内容:接收玩家(NetID={senderID})的卡组");
+		UIMessagePanel.Instance.AddMessage($"接收:玩家(NetID={senderID})的卡组");
 		Player player = PlayerManager.Instance.FindPlayerByNetID(senderID);
 		if (player != null) {
 			receivedCardsCount++;
@@ -285,17 +286,7 @@ public class RoomService {
 			PlayerInfo playerInfo = new PlayerInfo();
 			playerInfo.seatID = p.seatID;
 			playerInfo.playerName = p.playerName;
-			foreach (Card card in p.cardManager.cardsList) {
-				CardInfo cardInfo = new CardInfo();
-				cardInfo.index = card.index;
-				cardInfo.cardType = (int)card.cardType;
-				cardInfo.level = card.level;
-				cardInfo.hp = card.hp;
-				cardInfo.atk = card.atk;
-				cardInfo.positionX = card.positionX;
-				cardInfo.positionY = card.positionY;
-				playerInfo.cardsList.Add(cardInfo);
-			}
+			playerInfo.cardsList.SetCardInfoList(p.cardManager.cardsList);
 			message.Response.gameStart.playersList.Add(playerInfo);
 		}
 		NetManager.Instance.SendMessageToAll(message);
@@ -419,17 +410,7 @@ public class RoomService {
 		message.Request = new NetMessageRequest();
 		message.Request.playerJoinGame = new PlayerJoinGameRequest();
 		message.Request.playerJoinGame.player = new PlayerInfo();
-		foreach (Card card in PlayerManager.Instance.currentPlayer.cardManager.cardsList) {
-			message.Request.playerJoinGame.player.cardsList.Add(new CardInfo {
-				index = card.index,
-				cardType = (int)card.cardType,
-				level = card.level,
-				hp = card.hp,
-				atk = card.atk,
-				positionX = card.positionX,
-				positionY = card.positionY,
-			});
-		}
+		message.Request.playerJoinGame.player.cardsList.SetCardInfoList(PlayerManager.Instance.currentPlayer.cardManager.cardsList);
 		NetManager.Instance.SendMessageToServer(message);
 	}
 
@@ -459,6 +440,28 @@ public class RoomService {
 				player.SetPlayerName(playerInfo.playerName);
 			}
 			player.cardManager.LoadCardsListFromNet(playerInfo.cardsList);
+		}
+	}
+}
+
+
+
+
+
+
+static class CardInfoExtensions {
+	public static void SetCardInfoList(this List<CardInfo> cards, Card[] cardsList) {
+		foreach (Card card in cardsList) {
+			if(card == null) continue;
+			CardInfo cardInfo = new CardInfo();
+			cardInfo.index = card.index;
+			cardInfo.cardType = (int)card.cardType;
+			cardInfo.level = card.level;
+			cardInfo.hp = card.hp;
+			cardInfo.atk = card.atk;
+			cardInfo.positionX = card.positionX;
+			cardInfo.positionY = card.positionY;
+			cards.Add(cardInfo);
 		}
 	}
 }

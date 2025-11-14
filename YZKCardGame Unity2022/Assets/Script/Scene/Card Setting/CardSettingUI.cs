@@ -20,11 +20,11 @@ public class CardSettingUI : MonoBehaviour {
 	public void OnSceneLeave() {
 		SceneLoaderManager.Instance.UnregisterSceneEnterCallback(Scene.CardSetting, OnSceneEnter);
 		SceneLoaderManager.Instance.UnregisterSceneLeaveCallback(Scene.CardSetting, OnSceneLeave);
-        cardManager.CardLevelChanged -= UpdateLevelSumText;
-    }
+		cardManager.CardLevelChanged -= UpdateLevelSumText;
+	}
 	void UpdateLevelSumText() {
-        LevelSumText.text = $"卡牌总星级：{cardManager.CalSumOfCardsLevel()} / 55";
-    }
+		LevelSumText.text = $"卡牌总星级：{cardManager.CalSumOfCardsLevel()} / 55";
+	}
 
 
 

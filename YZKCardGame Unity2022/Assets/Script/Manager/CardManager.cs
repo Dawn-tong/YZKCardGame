@@ -8,8 +8,8 @@ public class CardManager : MonoBehaviour {
 	// 卡牌位置约束
 	const int NORMAL_CARD_START = 2;    // 普通卡牌起始位置
 	const int MAX_TOTAL_CARDS = 14;     // 最多14张卡牌(2特殊+12普通)
-	public int cardMaxLevel = 10;		// 卡牌最高10星
-	public int maxTotalLevel = 55;      // 所有卡牌最多55星
+	[HideInInspector] public int cardMaxLevel = 10;		// 卡牌最高10星
+	[HideInInspector] public int maxTotalLevel = 55;      // 所有卡牌最多55星
 
 	public Player owner;
 	public Card[] cardsList;
@@ -60,7 +60,7 @@ public class CardManager : MonoBehaviour {
 			Debug.LogWarning($"总等级超出限制: {maxTotalLevel}");
 			return false;
 		}
-		cardsList[cardIndex] = new Card() { cardType = CardType.Normal, level = 1, hp = 1, atk = 1, exists = true };
+		cardsList[cardIndex] = new Card() { index = cardIndex, cardType = CardType.Normal, level = 1, hp = 1, atk = 1, exists = true };
 		CardLevelChanged?.Invoke();
 		return true;
 	}
@@ -78,6 +78,7 @@ public class CardManager : MonoBehaviour {
 	}
 	public bool OverwriteCard(int cardIndex, CardInfo cardInfo) {
 		Card card = new Card();
+		card.exists = true;
 		card.index = cardInfo.index;
 		card.cardType = (CardType)cardInfo.cardType;
 		card.level = cardInfo.level;
@@ -85,6 +86,7 @@ public class CardManager : MonoBehaviour {
 		card.atk = cardInfo.atk;
 		card.positionX = cardInfo.positionX;
 		card.positionY = cardInfo.positionY;
+		Debug.Log(card.ToString());
 		return OverwriteCard(cardIndex, card);
 	}
 	/// <summary>
@@ -102,13 +104,13 @@ public class CardManager : MonoBehaviour {
 		}
 		
 		if (cardsList[cardIndex] == null) {
-			Debug.LogWarning($"位置 {cardIndex} 没有卡片（空槽位）");
+			Debug.LogWarning($"位置 {cardIndex} 没有卡片");
 			return false;
 		}
 		// 删除卡片
 		cardsList[cardIndex] = null;
 		CardLevelChanged?.Invoke();
-		Debug.Log($"成功删除卡片ID {cardIndex}，槽位已清空");
+		Debug.Log($"成功删除卡片(ID={cardIndex})");
 		return true;
 	}
 	public bool CardLevelUp(int index) {
@@ -284,10 +286,11 @@ public class CardManager : MonoBehaviour {
 	}
 	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
 	void InitCardsList() {
-		cardsList[0] = new Card() { cardType = CardType.Bomb, exists = true };
-		cardsList[1] = new Card() { cardType = CardType.Bomb, exists = true };
+		cardsList[0] = new Card() { index = 0, cardType = CardType.Bomb, exists = true };
+		cardsList[1] = new Card() { index = 1, cardType = CardType.Bomb, exists = true };
 		for (int i = 1; i <= 10; i++) {
 			cardsList[i + 1] = new Card() {
+				index = i + 1,
 				cardType = CardType.Normal,
 				level = i,
 				hp = i,
@@ -304,6 +307,21 @@ public class CardManager : MonoBehaviour {
 		ClearCards();
 		foreach (CardInfo cardInfo in cardInfos) {
 			OverwriteCard(cardInfo.index, cardInfo);
+		}
+	}
+	//将卡组转换为proto消息
+	public void ConvertCardsListToProtoMessage(List<CardInfo> cardInfos) {
+		foreach(Card card in cardsList) {
+			if(card == null) continue;
+			CardInfo cardInfo = new CardInfo();
+			cardInfo.index = card.index;
+			cardInfo.cardType = (int)card.cardType;
+			cardInfo.level = card.level;
+			cardInfo.hp = card.hp;
+			cardInfo.atk = card.atk;
+			cardInfo.positionX = card.positionX;
+			cardInfo.positionY = card.positionY;
+			cardInfos.Add(cardInfo);
 		}
 	}
 	//清空cardsList

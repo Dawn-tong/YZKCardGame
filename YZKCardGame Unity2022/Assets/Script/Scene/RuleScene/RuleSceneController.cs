@@ -2,17 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RuleSceneController : MonoBehaviour
+public class RuleSceneController : SceneControllerBase 
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	public override void OnSceneEnter() { }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	public override void OnSceneLeave() { }
 }

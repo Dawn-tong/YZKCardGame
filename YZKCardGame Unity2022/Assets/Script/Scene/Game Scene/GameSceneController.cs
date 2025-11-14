@@ -5,10 +5,8 @@ using UnityEngine;
 public class GameSceneController : SceneControllerBase
 {
 	public override void OnSceneEnter() {
-		GameSceneService.Instance.OnSceneEnter();
 	}
 
 	public override void OnSceneLeave() {
-		GameSceneService.Instance.OnSceneLeave();
 	}
 }

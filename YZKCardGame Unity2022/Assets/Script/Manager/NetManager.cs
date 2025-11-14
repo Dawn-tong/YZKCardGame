@@ -11,11 +11,11 @@ using UnityEngine;
 public class NetManager : ManagerBase<NetManager> {
 	// 标记消息处理器是否已注册
 	private bool isMessageHandlerRegistered = false;
-    public void Init() {
-        EnsureNetworkComponents();	//创建网络组件
-        InitializeNetworkServices();
-        RegisterNetworkCallbacks();	//监听网络断开事件
-    }
+	public void Init() {
+		EnsureNetworkComponents();	//创建网络组件
+		InitializeNetworkServices();
+		RegisterNetworkCallbacks();	//监听网络断开事件
+	}
 	// 自动创建所需的网络组件
 	void EnsureNetworkComponents() {
 		//检查是否已存在 Unity 的 NetworkManager(只会运行一次,必定不存在)
@@ -214,15 +214,15 @@ public class NetManager : ManagerBase<NetManager> {
 	public event NetDisconnectedDelegate NetDisconnected;
 	//注册网络断开回调
 	void RegisterNetworkCallbacks() {
-        if (NetworkManager.Singleton != null) {
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnNetworkClientDisconnected;
-        }
-    }
+		if (NetworkManager.Singleton != null) {
+			NetworkManager.Singleton.OnClientDisconnectCallback += OnNetworkClientDisconnected;
+		}
+	}
 	void UnregisterNetworkCallbacks() {
-        if (NetworkManager.Singleton != null) {
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnNetworkClientDisconnected;
-        }
-    }
+		if (NetworkManager.Singleton != null) {
+			NetworkManager.Singleton.OnClientDisconnectCallback -= OnNetworkClientDisconnected;
+		}
+	}
 	//收到网络断开消息(收到退出响应以后也会收到网络断开消息)
 	void OnNetworkClientDisconnected(ulong clientID) {
 		// 服务器掉线/主动退出房间(即客户端发现已经断开连接)
@@ -240,7 +240,7 @@ public class NetManager : ManagerBase<NetManager> {
 		if (NetworkManager.Singleton.IsServer) {
 			NetDisconnected?.Invoke(clientID);
 		}
-    }
+	}
 
 
 
@@ -341,80 +341,80 @@ public class NetManager : ManagerBase<NetManager> {
 	/// 发送数据给指定客户端
 	/// </summary>
 	void SendDataToClient(ulong clientId, byte[] data) {
-	    if (data == null || data.Length == 0) {
-	        Debug.LogError($"{Log.perfix}发送的数据为空");
-	        return;
-	    }
+		if (data == null || data.Length == 0) {
+			Debug.LogError($"{Log.perfix}发送的数据为空");
+			return;
+		}
 
-	    // 计算需要的总空间：数据长度 + 长度前缀(4字节)
-	    int totalSize = data.Length + sizeof(int);
-	    var writer = new FastBufferWriter(totalSize, Unity.Collections.Allocator.Temp);
-	
-	    try {
-	        // 必须先调用 TryBeginWrite 来分配写入空间
-	        if (!writer.TryBeginWrite(totalSize)) {
-	            Debug.LogError($"{Log.perfix}无法分配足够的写入空间: {totalSize} 字节");
-	            return;
-	        }
+		// 计算需要的总空间：数据长度 + 长度前缀(4字节)
+		int totalSize = data.Length + sizeof(int);
+		var writer = new FastBufferWriter(totalSize, Unity.Collections.Allocator.Temp);
+		
+		try {
+			// 必须先调用 TryBeginWrite 来分配写入空间
+			if (!writer.TryBeginWrite(totalSize)) {
+				Debug.LogError($"{Log.perfix}无法分配足够的写入空间: {totalSize} 字节");
+				return;
+			}
 
-	        // 使用 WriteValueSafe 确保安全写入
-	        writer.WriteValueSafe(data.Length);  // 先写入数据长度
-	        writer.WriteBytesSafe(data, data.Length); // 使用WriteBytesSafe写入实际数据
+			// 使用 WriteValueSafe 确保安全写入
+			writer.WriteValueSafe(data.Length);  // 先写入数据长度
+			writer.WriteBytesSafe(data, data.Length); // 使用WriteBytesSafe写入实际数据
 
-	        if (NetworkManager.Singleton.IsServer) {
-	            NetworkManager.Singleton.CustomMessagingManager.SendUnnamedMessage(
-	                clientId,
-	                writer,
-	                NetworkDelivery.ReliableFragmentedSequenced
-	            );
-	            Debug.Log($"{Log.perfix}服务器发送消息给客户端 {clientId}。长度 = {data.Length}, 总写入 = {writer.Length} 字节");
-	        }
-	        else if (NetworkManager.Singleton.IsClient) {
-	            NetworkManager.Singleton.CustomMessagingManager.SendUnnamedMessage(
-	                NetworkManager.ServerClientId,
-	                writer,
-	                NetworkDelivery.ReliableFragmentedSequenced
-	            );
-	            Debug.Log($"{Log.perfix}客户端发送消息给服务器。长度 = {data.Length}, 总写入 = {writer.Length} 字节");
-	        }
-	    }
-	    catch (Exception e) {
-	        Debug.LogError($"{Log.perfix}发送消息失败: {e.Message}\n{e.StackTrace}");
-	    }
-	    finally {
-	        writer.Dispose();
-	    }
+			if (NetworkManager.Singleton.IsServer) {
+				NetworkManager.Singleton.CustomMessagingManager.SendUnnamedMessage(
+					clientId,
+					writer,
+					NetworkDelivery.ReliableFragmentedSequenced
+				);
+				Debug.Log($"{Log.perfix}服务器发送消息给客户端 {clientId}。长度 = {data.Length}, 总写入 = {writer.Length} 字节");
+			}
+			else if (NetworkManager.Singleton.IsClient) {
+				NetworkManager.Singleton.CustomMessagingManager.SendUnnamedMessage(
+					NetworkManager.ServerClientId,
+					writer,
+					NetworkDelivery.ReliableFragmentedSequenced
+				);
+				Debug.Log($"{Log.perfix}客户端发送消息给服务器。长度 = {data.Length}, 总写入 = {writer.Length} 字节");
+			}
+		}
+		catch (Exception e) {
+			Debug.LogError($"{Log.perfix}发送消息失败: {e.Message}\n{e.StackTrace}");
+		}
+		finally {
+			writer.Dispose();
+		}
 	}
 	/// <summary>
 	/// 处理接收到的消息
 	/// </summary>
 	void HandleIncomingMessage(ulong senderId, FastBufferReader reader) {
-	    try {
-	        // 读取数据长度
-	        if (!reader.TryBeginRead(sizeof(int))) {
-	            Debug.LogError("无法读取数据长度");
-	            return;
-	        }
-	        reader.ReadValueSafe(out int dataLength);
+		try {
+			// 读取数据长度
+			if (!reader.TryBeginRead(sizeof(int))) {
+				Debug.LogError("无法读取数据长度");
+				return;
+			}
+			reader.ReadValueSafe(out int dataLength);
 			// 检查是否有足够的数据可读
-	        if (!reader.TryBeginRead(dataLength)) {
-	            Debug.LogError($"数据不完整，期望 {dataLength} 字节");
-	            return;
-	        }
-	        // 读取实际数据
-	        byte[] data = new byte[dataLength];
-	        reader.ReadBytesSafe(ref data, dataLength);
-	        // 解包消息
-	        NetMessage message = PackageHandler.UnpackMessage(data);
-	        if (message == null) {
-	            Debug.LogError("消息解包失败");
-	            return;
-	        }
+			if (!reader.TryBeginRead(dataLength)) {
+				Debug.LogError($"数据不完整，期望 {dataLength} 字节");
+				return;
+			}
+			// 读取实际数据
+			byte[] data = new byte[dataLength];
+			reader.ReadBytesSafe(ref data, dataLength);
+			// 解包消息
+			NetMessage message = PackageHandler.UnpackMessage(data);
+			if (message == null) {
+				Debug.LogError("消息解包失败");
+				return;
+			}
 			// 使用消息分发系统
 			if (isHostPlayer) {
 				//服务器只处理请求
 				if (message.Request != null) {
-			        Log.IncreasePerfixLength();
+					Log.IncreasePerfixLength();
 					Debug.Log($"{Log.perfix}————        服务器收到一条请求(来源ID:{senderId})        ————");
 					MessageDispatch<ulong>.Instance.Dispatch(senderId, message.Request);
 					Log.ReducePerfixLength();
@@ -423,15 +423,15 @@ public class NetManager : ManagerBase<NetManager> {
 			else {
 				//客户端只处理响应
 				if (message.Response != null) {
-			        Log.IncreasePerfixLength();
+					Log.IncreasePerfixLength();
 					Debug.Log($"{Log.perfix}————        客户端收到一条响应        ————");
 					MessageDispatch<ulong>.Instance.Dispatch(senderId, message.Response);
 					Log.ReducePerfixLength();
 				}
 			}
-	    }
-	    catch (Exception e) {
-	        Debug.LogError($"处理接收消息失败: {e.Message}\n{e.StackTrace}");
-	    }
+		}
+		catch (Exception e) {
+			Debug.LogError($"处理接收消息失败: {e.Message}\n{e.StackTrace}");
+		}
 	}
 }

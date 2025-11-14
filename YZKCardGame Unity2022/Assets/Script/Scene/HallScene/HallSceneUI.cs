@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIHall : MonoBehaviour
+public class HallSceneUI : MonoBehaviour
 {
 	public Text titleText;
 	public Button creatRoomButton;

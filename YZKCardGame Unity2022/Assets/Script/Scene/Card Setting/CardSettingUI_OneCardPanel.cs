@@ -224,7 +224,7 @@ public class CardSettingUI_OneCardPanel : MonoBehaviour {
 	}
 	//∑≈÷√ø®∆¨
 	void PutCardOnBoard(int positionX, int positionY) {
-		if(positionX < 0 ||positionX >4 || positionY < 0 || positionY > 4) {
+		if(positionX < 0 ||positionX >3 || positionY < 0 || positionY > 3) {
 			return;
 		}
 		Debug.Log($"∑≈÷√ø®∆¨‘⁄{positionX},{positionY}");

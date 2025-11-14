@@ -43,7 +43,7 @@ public class RoomSceneUI : MonoBehaviour {
 	public void ClickButtonToStartGame() {
 		Debug.Log("按钮 - 开始游戏");
 		SceneLoaderManager.Instance.LoadScene(Scene.GameScene);
-		//具体逻辑在GameSceneService中实现
+		RoomService.Instance.SendReadyToStartResponse();
 	}
 	public void ClickButtonToChangeReady()
 	{
