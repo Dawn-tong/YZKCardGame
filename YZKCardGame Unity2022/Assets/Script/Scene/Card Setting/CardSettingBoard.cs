@@ -45,7 +45,7 @@ public class CardSettingBoard : MonoBehaviour {
 	public TileClickDelegate OnTileClicked;
 	void Update() {
 		if (Input.GetMouseButtonDown(0)) {
-			if (UIManager.IsClickBlockingUI()) {
+			if (UIShield.IsClickBlockingUI()) {
 				return;
 			}
 			clickPosition = Input.mousePosition;
@@ -75,7 +75,7 @@ public class CardSettingBoard : MonoBehaviour {
 		UpdateBoard();
 	}
 	//更新棋盘
-	void UpdateBoard() {
+	public void UpdateBoard() {
 		Debug.Log("更新所有棋盘事件发生");
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {

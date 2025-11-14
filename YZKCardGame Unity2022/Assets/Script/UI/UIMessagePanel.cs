@@ -3,8 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIMessagePanel : MonoBehaviour
-{
+public class UIMessagePanel : MonoBehaviour {
 	public static UIMessagePanel Instance { get; set; }
 
 	private GameObject ScrollView;
@@ -14,12 +13,39 @@ public class UIMessagePanel : MonoBehaviour
     private Text buttonText;
     private bool isPanelVisible = true;
     
-    public void Init() {
+    public static void Init() {
+		//创建CanvasObj
+		GameObject messagePanelCanvasObj = new GameObject("messagePanelCanvas");
+		DontDestroyOnLoad(messagePanelCanvasObj);
+		messagePanelCanvasObj.transform.SetParent(UIManager.ManagerObj.transform);
+		//设置Canvas
+		Canvas canvas = messagePanelCanvasObj.AddComponent<Canvas>();
+		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+		canvas.overrideSorting = true;
+		canvas.sortingOrder = UIManager.messagePanelSortOrder;
+		CanvasScaler scaler = messagePanelCanvasObj.AddComponent<CanvasScaler>();
+		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		scaler.referenceResolution = new Vector2(1920, 1080);
+		GraphicRaycaster raycaster = messagePanelCanvasObj.AddComponent<GraphicRaycaster>();
+		//创建Panel
+		GameObject messagePanelObj = new GameObject("messagePanelObj");
+		DontDestroyOnLoad(messagePanelObj);
+		messagePanelObj.transform.SetParent(messagePanelCanvasObj.transform);
+		// 添加RectTransform
+		RectTransform rootRect = messagePanelObj.AddComponent<RectTransform>();
+		rootRect.SetParent(messagePanelObj.transform, false);
+		rootRect.anchorMin = new Vector2(0, 0.01f);
+		rootRect.anchorMax = new Vector2(0, 0.01f);
+		rootRect.pivot = new Vector2(0, 0);
+		rootRect.anchoredPosition = new Vector2(0, 0);
+		rootRect.sizeDelta = new Vector2(500, 300);
+		
+		Instance = messagePanelObj.AddComponent<UIMessagePanel>();
         //创建开关按钮
-        CreateToggleButton();
+        Instance.CreateToggleButton();
         //创建滚动显示面板
-        CreateScrollPanel();
-        SetPanelVisible(true);
+        Instance.CreateScrollPanel();
+        Instance.SetPanelVisible(true);
 	}
     
 
@@ -80,9 +106,9 @@ public class UIMessagePanel : MonoBehaviour
 
 	private void CreateScrollPanel() {
 		//加载滚动条
-		ScrollView = Resources.Load<GameObject>("Prefab/Log Panel");
+		ScrollView = Resources.Load<GameObject>(UIManager.messagePanelResourcePath);
 		if (ScrollView == null) {
-			Debug.LogError("无法加载 Log Panel prefab！请检查路径和文件名。");
+			Debug.LogError($"无法加载 {UIManager.messagePanelResourcePath} prefab！请检查路径和文件名。");
 			return;
 		}	
 		ScrollView = Instantiate(ScrollView);

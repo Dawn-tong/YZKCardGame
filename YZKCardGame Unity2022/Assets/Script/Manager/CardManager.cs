@@ -285,7 +285,7 @@ public class CardManager : MonoBehaviour {
 		}
 	}
 	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
-	void InitCardsList() {
+	public void InitCardsList() {
 		cardsList[0] = new Card() { index = 0, cardType = CardType.Bomb, exists = true };
 		cardsList[1] = new Card() { index = 1, cardType = CardType.Bomb, exists = true };
 		for (int i = 1; i <= 10; i++) {

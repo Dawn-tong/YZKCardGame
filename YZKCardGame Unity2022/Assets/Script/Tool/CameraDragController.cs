@@ -50,7 +50,7 @@ public class CameraDragController : MonoBehaviour
     }
     private void HandleDrag() {
         // 鼠标按下开始拖拽
-        if (Input.GetMouseButtonDown(0) && !UIManager.IsClickBlockingUI()) {
+        if (Input.GetMouseButtonDown(0) && !UIShield.IsClickBlockingUI()) {
             isDragging = true;
             lastMousePosition = Input.mousePosition;
         }
@@ -72,12 +72,12 @@ public class CameraDragController : MonoBehaviour
     private void HandleZoom() {
         // 获取鼠标滚轮输入
         float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
-		if (scrollDelta > 0.001f && !UIManager.IsClickBlockingUI()) {
+		if (scrollDelta > 0.001f && !UIShield.IsClickBlockingUI()) {
             float newSize = targetCamera.orthographicSize / (1 + scrollDelta * zoomSpeed);
 			targetCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
 			transform.position = ClampPositionToBounds(transform.position);
 		}
-		if (scrollDelta < -0.001f && !UIManager.IsClickBlockingUI()) {
+		if (scrollDelta < -0.001f && !UIShield.IsClickBlockingUI()) {
             float newSize = targetCamera.orthographicSize * (1 - scrollDelta * zoomSpeed);
 			targetCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
 			transform.position = ClampPositionToBounds(transform.position);
