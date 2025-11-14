@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIPopup : UIBase {
+    public GameObject goBackReigon;
     public RectTransform window;
 	public float windowMinHeight = 450;
     public float windowMaxHeight = 850;
@@ -26,11 +27,13 @@ public class UIPopup : UIBase {
 	public void ClickButtonToConfirm() {
 		OnClose?.Invoke(true);
         OnNoMoreTip?.Invoke(noMoreTipToggle.isOn);
+		window.anchoredPosition = new Vector2(0, 2000);
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	public void ClickButtonToCancel() {
 		OnClose?.Invoke(false);
         OnNoMoreTip?.Invoke(noMoreTipToggle.isOn);
+		window.anchoredPosition = new Vector2(0, 2000);
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	
@@ -40,6 +43,7 @@ public class UIPopup : UIBase {
 	
 	
 	public void InitUIPopup(string title, string content, CloseDelegate onClose = null) {
+        goBackReigon.SetActive(false);
 		titleText.text = title;
 		contentText.text = content;
 		this.OnClose = onClose;
@@ -55,6 +59,8 @@ public class UIPopup : UIBase {
 		contentRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, textHeight + 20);
 		//自动设置窗口高度
 		window.sizeDelta = new Vector2(window.sizeDelta.x, Mathf.Clamp(textHeight + 320f, windowMinHeight, windowMaxHeight));
+		window.anchoredPosition = new Vector2(0, 0);
+        goBackReigon.SetActive(true);
 	}
     public void ShowNoMoreTip(NoMoreTipDelegate onNoMoreTip) {
         noMoreTipToggle.gameObject.SetActive(true);

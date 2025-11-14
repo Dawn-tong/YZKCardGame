@@ -23,7 +23,8 @@ public class TitleSceneUI : MonoBehaviour {
 		if (canEnterGame) {
 			SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
 		} else {
-			UIManager.Instance.CreateUI<UIPopup>().InitUIPopup("提示", "请先设置卡组");
+			Debug.Log("创建提示窗口");
+			UIManager.Instance.CreateUI<UIMessage>().InitUIMessage("提示", "请先设置卡组");
 		}
 	}
 	public void ClickButtonToExitGame() {

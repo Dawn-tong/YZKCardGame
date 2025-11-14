@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIMessage : UIBase {
+	public GameObject goBackReigon;
 	public RectTransform window;
 	public float windowMinHeight = 450;
 	public float windowMaxHeight = 850;
@@ -20,10 +21,12 @@ public class UIMessage : UIBase {
 	public event CloseDelegate OnClose;
 	public void ClickButtonToConfirm() {
 		OnClose?.Invoke();
+		window.anchoredPosition = new Vector2(0, 2000);
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	public void ClickButtonToCancel() {
 		OnClose?.Invoke();
+		window.anchoredPosition = new Vector2(0, 2000);
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	
@@ -33,6 +36,7 @@ public class UIMessage : UIBase {
 	
 	
 	public void InitUIMessage(string title, string content, CloseDelegate onClose = null) {
+		goBackReigon.SetActive(false);
 		titleText.text = title;
 		contentText.text = content;
 		this.OnClose = onClose;
@@ -48,5 +52,7 @@ public class UIMessage : UIBase {
 		contentRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, textHeight + 20);
 		//自动设置窗口高度
 		window.sizeDelta = new Vector2(window.sizeDelta.x, Mathf.Clamp(textHeight + 320f, windowMinHeight, windowMaxHeight));
+		window.anchoredPosition = new Vector2(0, 0);
+		goBackReigon.SetActive(true);
 	}
 }

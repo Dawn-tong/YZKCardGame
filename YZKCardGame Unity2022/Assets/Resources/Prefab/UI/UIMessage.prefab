@@ -204,6 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f4efd1d9d9998843b362875c8634c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goBackReigon: {fileID: 4116818232516938364}
   window: {fileID: 7726364392612831205}
   windowMinHeight: 450
   windowMaxHeight: 850
@@ -1207,8 +1208,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5014946914509685038}
   m_HandleRect: {fileID: 3508894474610037747}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.9999999
+  m_Value: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1286,7 +1287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000061035156, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 20}
   m_SizeDelta: {x: 1010, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6684090836221136404
