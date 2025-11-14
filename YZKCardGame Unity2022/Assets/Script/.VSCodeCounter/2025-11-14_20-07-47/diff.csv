@@ -1,0 +1,11 @@
+"filename", "language", "C#", "comment", "blank", "total"
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Manager\UIManager.cs", "C#", 1, 0, 0, 1
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Card Setting\CardSettingUI.cs", "C#", 12, 0, 1, 13
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Card Setting\CardSettingUI_OneCardPanel.cs", "C#", 9, -1, 0, 8
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\RuleScene\RuleSceneController.cs", "C#", -1, 0, 1, 0
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Title Scene\TitleSceneController.cs", "C#", 2, 0, 3, 5
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Title Scene\TitleSceneUI.cs", "C#", 14, 1, 6, 21
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIShield.cs", "C#", 0, 0, -1, -1
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIprefab\UIBase.cs", "C#", 0, 0, 1, 1
+"d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIprefab\UIPopup.cs", "C#", 32, 4, 10, 46
+"Total", "-", 69, 4, 21, 94

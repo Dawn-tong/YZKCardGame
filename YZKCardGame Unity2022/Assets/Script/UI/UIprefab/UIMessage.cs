@@ -2,35 +2,28 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIPopup : UIBase {
-    public RectTransform window;
+public class UIMessage : UIBase {
+	public RectTransform window;
 	public float windowMinHeight = 450;
-    public float windowMaxHeight = 850;
+	public float windowMaxHeight = 850;
 	public Text titleText;
 	public RectTransform contentRectTransform; // 引用 Content 的 RectTransform
 	public Text contentText;
 	public Button confirmButton;
-	public Button cancelButton;
-    public Toggle noMoreTipToggle;
 	
 	
 	
 	
 	
     //关闭时回调
-	public delegate void CloseDelegate(bool result);
+	public delegate void CloseDelegate();
 	public event CloseDelegate OnClose;
-    //本次游戏不再提示
-    public delegate void NoMoreTipDelegate(bool isOn);
-    public event NoMoreTipDelegate OnNoMoreTip;
 	public void ClickButtonToConfirm() {
-		OnClose?.Invoke(true);
-        OnNoMoreTip?.Invoke(noMoreTipToggle.isOn);
+		OnClose?.Invoke();
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	public void ClickButtonToCancel() {
-		OnClose?.Invoke(false);
-        OnNoMoreTip?.Invoke(noMoreTipToggle.isOn);
+		OnClose?.Invoke();
 		UIManager.Instance.CloseUI(gameObject);
 	}
 	
@@ -39,7 +32,7 @@ public class UIPopup : UIBase {
 	
 	
 	
-	public void InitUIPopup(string title, string content, CloseDelegate onClose = null) {
+	public void InitUIMessage(string title, string content, CloseDelegate onClose = null) {
 		titleText.text = title;
 		contentText.text = content;
 		this.OnClose = onClose;
@@ -56,8 +49,4 @@ public class UIPopup : UIBase {
 		//自动设置窗口高度
 		window.sizeDelta = new Vector2(window.sizeDelta.x, Mathf.Clamp(textHeight + 320f, windowMinHeight, windowMaxHeight));
 	}
-    public void ShowNoMoreTip(NoMoreTipDelegate onNoMoreTip) {
-        noMoreTipToggle.gameObject.SetActive(true);
-        this.OnNoMoreTip = onNoMoreTip;
-    }
 }

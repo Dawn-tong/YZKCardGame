@@ -46,8 +46,7 @@ public class CardSettingUI : MonoBehaviour {
 
 	public CardSettingBoard cardSettingBoard;
 	public void ClickButtonToResetAllCards() {
-		GameObject uiObject = UIManager.Instance.CreateUI<UIPopup>();
-		uiObject.GetComponent<UIPopup>().InitUIPopup("重置卡牌", "确认重置所有卡牌" 
+		UIManager.Instance.CreateUI<UIPopup>().InitUIPopup("重置卡牌", "确认重置所有卡牌" 
 			,(result) => {
 				if (result) {
 					cardManager.InitCardsList();

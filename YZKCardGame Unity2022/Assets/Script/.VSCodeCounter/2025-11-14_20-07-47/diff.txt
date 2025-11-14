@@ -1,0 +1,41 @@
+Date : 2025-11-14 20:07:47
+Directory : d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script
+Total : 9 files,  69 codes, 4 comments, 21 blanks, all 94 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C#       |          9 |         69 |          4 |         21 |         94 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                   | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                      |          9 |         69 |          4 |         21 |         94 |
+| Manager                                                                                                |          1 |          1 |          0 |          0 |          1 |
+| Scene                                                                                                  |          5 |         36 |          0 |         11 |         47 |
+| Scene\Card Setting                                                                                     |          2 |         21 |         -1 |          1 |         21 |
+| Scene\RuleScene                                                                                        |          1 |         -1 |          0 |          1 |          0 |
+| Scene\Title Scene                                                                                      |          2 |         16 |          1 |          9 |         26 |
+| UI                                                                                                     |          3 |         32 |          4 |         10 |         46 |
+| UI (Files)                                                                                             |          1 |          0 |          0 |         -1 |         -1 |
+| UI\UIprefab                                                                                            |          2 |         32 |          4 |         11 |         47 |
++--------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                               | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Manager\UIManager.cs                             | C#       |          1 |          0 |          0 |          1 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Card Setting\CardSettingUI.cs              | C#       |         12 |          0 |          1 |         13 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Card Setting\CardSettingUI_OneCardPanel.cs | C#       |          9 |         -1 |          0 |          8 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\RuleScene\RuleSceneController.cs           | C#       |         -1 |          0 |          1 |          0 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Title Scene\TitleSceneController.cs        | C#       |          2 |          0 |          3 |          5 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\Scene\Title Scene\TitleSceneUI.cs                | C#       |         14 |          1 |          6 |         21 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIShield.cs                                   | C#       |          0 |          0 |         -1 |         -1 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIprefab\UIBase.cs                            | C#       |          0 |          0 |          1 |          1 |
+| d:\游戏\YZKCardGame\YZKCardGame Unity2022\Assets\Script\UI\UIprefab\UIPopup.cs                           | C#       |         32 |          4 |         10 |         46 |
+| Total                                                                                                  |          |         69 |          4 |         21 |         94 |
++--------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

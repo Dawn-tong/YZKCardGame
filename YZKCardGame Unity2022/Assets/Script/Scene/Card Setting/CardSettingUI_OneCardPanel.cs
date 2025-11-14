@@ -58,8 +58,37 @@ public class CardSettingUI_OneCardPanel : MonoBehaviour {
 			UpdateButtonState();
 		}
 	}
+	static bool noMoreTip = false;
 	public void ClickButtonToDeleteCard() {
-		//Debug.Log("°´Å¥ - É¾³ý¿¨Æ¬");
+		if(noMoreTip) {
+			DeleteCard();
+			return;
+		}
+		UIPopup popup = UIManager.Instance.CreateUI<UIPopup>();
+		popup.InitUIPopup("ÌáÊ¾", "È·ÈÏÉ¾³ý¿¨Æ¬" +
+			"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö²âÊÔÎÄ×Ö" +
+				"²âÊÔÎÄ×Ö123"
+			, (result) => {
+				if (result) {
+					DeleteCard();
+				}
+			}
+		);
+		popup.ShowNoMoreTip(
+			(isOn) => {
+				if (isOn) {
+					noMoreTip = true;
+				}
+			}
+		);
+	}
+	void DeleteCard() {
 		int positionX = cardInfo.Card.positionX;
 		int positionY = cardInfo.Card.positionY;
 		if(cardManager.DeleteCard(cardInfo.CardIndex)) {
