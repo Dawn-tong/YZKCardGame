@@ -64,6 +64,12 @@ public class Timer : MonoBehaviour
 		onDelete = null;
 	}
 
+	public static void SafeDelete(Timer timer) {
+		if (timer != null) {
+			timer.Delete();
+		}
+	}
+
 	public void TimerTick(float addTime) {
 		if (isPause)
 			return;

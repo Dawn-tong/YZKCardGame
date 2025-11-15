@@ -6,7 +6,6 @@ public class Player : MonoBehaviour {
 	public string playerName;
 	public bool isReady = false;
 	public CardManager currentCardManager;
-	//public CardsListManager cardsListManager;
 	
 	public void Init(int seatID) {
 		this.seatID = seatID;
@@ -15,14 +14,6 @@ public class Player : MonoBehaviour {
 			currentCardManager = gameObject.AddComponent<CardManager>();
 		}
 		currentCardManager.Init(this);
-		//				// ≥ı ºªØCardsListManager
-		//				if (cardsListManager == null) {
-		//					cardsListManager = GetComponent<CardsListManager>();
-		//				}
-		//				if (cardsListManager == null) {
-		//					cardsListManager = gameObject.AddComponent<CardsListManager>();
-		//				}
-		//				cardsListManager.Init(currentCardManager);
 	}
 	public Player SetNetID(ulong netID) {
 		this.netID = netID;

@@ -40,6 +40,7 @@ public class CardSettingBoard : MonoBehaviour {
 
 	Vector3 clickPosition;
 	float clickTime = 0;
+	Timer holdTimer;
 	bool existCard = false;
 	Card clickCard;
 	GameObject clickCardObject;
@@ -49,58 +50,84 @@ public class CardSettingBoard : MonoBehaviour {
 	public TileClickDelegate OnTileClicked;
 	void Update() {
 		if (Input.GetMouseButtonDown(0)) {
-			if (UIShield.IsClickBlockingUI()) {
-				return;
-			}
-			clickPosition = Input.mousePosition;
-			clickTime = Time.time;
-			Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
-			clickPositionX = cellPosition.x;
-			clickPositionY = cellPosition.y;
-			//拿起棋子
-			Card card = cardManager.FindCardByPosition(clickPositionX, clickPositionY);
-			if(card != null) {
-				existCard = true;
-				clickCard = card;
-				clickCardObject = chessBoard[clickPositionX, clickPositionY].gameObject;
-			}
+			MouseDown();
 		}
-
 		//长按拿起棋子
-		if(existCard && Time.time - clickTime > 0.8f) {
-			//设置棋子位置为鼠标位置
-			Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			clickCardObject.transform.position = new Vector3(worldPoint.x, worldPoint.y, 10f);
-			clickCardObject.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+		if(existCard) {
+			MouseHolding();
 		}
-
 		if (Input.GetMouseButtonUp(0)) {
-			//拖拽
-			if(existCard && Time.time - clickTime > 0.8f) {
-				clickCardObject.transform.position = new Vector3(clickCardObject.transform.position.x, clickCardObject.transform.position.y, 0);
-				clickCardObject.transform.localScale = new Vector3(1f, 1f, 1f);
-				//放下棋子
+			MouseUp();
+		}
+	}
+	//鼠标按下
+	void MouseDown() {
+		if (UIShield.IsClickBlockingUI()) {
+			return;
+		}
+		clickPosition = Input.mousePosition;
+		clickTime = Time.time;
+		Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
+		clickPositionX = cellPosition.x;
+		clickPositionY = cellPosition.y;
+		//如果格子内有棋子
+		if (clickPositionX < 0 || clickPositionX > 3 || clickPositionY < 0 || clickPositionY > 3) {
+			return;
+		}
+		if(chessBoard[clickPositionX, clickPositionY] == null) {
+			return;
+		}
+		//则创建长按计时器
+		holdTimer = TimerManager.CreateTimer().SetName("HoldTimer").SetTime(0.6f).SetCount(1).SetAction(
+			() => {
+				//判断鼠标是否还在原来的格子
 				Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 				Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
-				if(cellPosition.x >= 0 && cellPosition.x < 4 && cellPosition.y >= 0 && cellPosition.y < 4) {
-					PutCardOnBoard(clickCard, cellPosition.x, cellPosition.y);
+				if(cellPosition.x != clickPositionX || cellPosition.y != clickPositionY) {
+					return;
 				}
-				else{
-					PutCardOnBoard(clickCard, clickPositionX, clickPositionY);
-				}
+				//拿起棋子
+				existCard = true;
+				clickCard = cardManager.FindCardByPosition(clickPositionX, clickPositionY);
+				clickCardObject = chessBoard[clickPositionX, clickPositionY].gameObject;
+				clickCardObject.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
 			}
-			//点击
+		);
+	}
+	//鼠标持续
+	void MouseHolding() {
+		//设置棋子位置为鼠标位置
+		Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		clickCardObject.transform.position = new Vector3(worldPoint.x, worldPoint.y, -10f);
+	}
+	//鼠标抬起
+	void MouseUp() {
+		Timer.SafeDelete(holdTimer);
+		//拖拽
+		if(existCard && Time.time - clickTime > 0.6f) {
+			clickCardObject.transform.position = new Vector3(clickCardObject.transform.position.x, clickCardObject.transform.position.y, 0);
+			clickCardObject.transform.localScale = new Vector3(1f, 1f, 1f);
+			//放下棋子
+			Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
+			if(cellPosition.x >= 0 && cellPosition.x < 4 && cellPosition.y >= 0 && cellPosition.y < 4) {
+				PutCardOnBoard(clickCard, cellPosition.x, cellPosition.y);
+			}
 			else{
-				if(Vector2.Distance(clickPosition, Input.mousePosition) < 10f) {
-					OnTileClicked?.Invoke(clickPositionX, clickPositionY);
-				}	
+				PutCardOnBoard(clickCard, clickPositionX, clickPositionY);
 			}
-			clickTime = 0;
-			existCard = false;
-			clickCard = null;
-			clickCardObject = null;
 		}
+		//点击
+		else{
+			if(Vector2.Distance(clickPosition, Input.mousePosition) < 10f) {
+				OnTileClicked?.Invoke(clickPositionX, clickPositionY);
+			}	
+		}
+		clickTime = 0;
+		existCard = false;
+		clickCard = null;
+		clickCardObject = null;
 	}
 
 

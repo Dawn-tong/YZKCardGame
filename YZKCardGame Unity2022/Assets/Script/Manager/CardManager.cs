@@ -14,17 +14,21 @@ public class CardManager : MonoBehaviour {
 
 	public Player owner;
 	public Card[] cardsList;
-	public event Action CardLevelChanged;
-	public int CurrentCardSetIndex { get; private set; } = 0;
-
 	//初始化CardManager
 	public void Init(Player owner) {
 		this.owner = owner;
 		cardsList = new Card[MAX_TOTAL_CARDS];
-		InitializeCardSetStorage();
-		LoadCardsListFromLocal(CurrentCardSetIndex);
 	}
 	
+
+
+
+
+
+	public event Action CardLevelChanged;
+	public void NotifyCardLevelChanged() {
+		CardLevelChanged?.Invoke();
+	}
 
 
 
@@ -183,6 +187,9 @@ public class CardManager : MonoBehaviour {
 	public event CardSwapDelegate OnCardSwap;
 	//寻找卡片
 	public Card FindCardByPosition(int positionX, int positionY) {
+		//	if (positionX < 0 || positionX > 3 || positionY < 0 || positionY > 3) {
+		//		return null;
+		//	}
 		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
 			if(cardsList[i] != null && cardsList[i].positionX == positionX && cardsList[i].positionY == positionY) {
 				return cardsList[i];
@@ -202,125 +209,6 @@ public class CardManager : MonoBehaviour {
 			(card.positionY, oldCard.positionY) = (oldCard.positionY, card.positionY);
 		}
 		OnCardSwap?.Invoke();
-	}
-
-
-
-
-
-
-	string cardListDirectory;    // 卡组保存目录
-	string[] cardSetPaths;       // 各卡组文件路径
-	//初始化卡组存储
-	void InitializeCardSetStorage() {
-		cardListDirectory = Path.Combine(Application.persistentDataPath, "CardSets");
-		if (!Directory.Exists(cardListDirectory)) {
-			Directory.CreateDirectory(cardListDirectory);
-		}
-		if (cardSetPaths == null || cardSetPaths.Length != CARD_SET_COUNT) {
-			cardSetPaths = new string[CARD_SET_COUNT];
-		}
-		for (int i = 0; i < CARD_SET_COUNT; i++) {
-			cardSetPaths[i] = Path.Combine(cardListDirectory, $"CardList_{i}.json");
-		}
-	}
-	/// <summary>
-	/// 保存卡组到本地
-	/// </summary>
-	public void SaveCardsListToLocal(int setIndex = -1) {
-		if (setIndex < 0 || setIndex >= CARD_SET_COUNT) {
-			setIndex = CurrentCardSetIndex;
-		}
-		try {
-			CardListWrapper wrapper = new CardListWrapper {
-				cards = BuildSerializableCards(),
-				cardSetIndex = setIndex
-			};
-			string json = JsonUtility.ToJson(wrapper, true);
-			string targetPath = cardSetPaths[setIndex];
-			File.WriteAllText(targetPath, json);
-			Debug.Log($"卡组 {setIndex} 已保存到: {targetPath}");
-		}
-		catch (System.Exception e) {
-			Debug.LogError($"保存卡组失败: {e.Message}");
-		}
-	}
-	// 将数组包装成可序列化的类
-	Card[] BuildSerializableCards() {
-		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
-			cardsList = new Card[MAX_TOTAL_CARDS];
-		}
-		Card[] serialized = new Card[MAX_TOTAL_CARDS];
-		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
-			Card card = cardsList[i];
-			if (card != null) {
-				card.exists = true;
-				serialized[i] = card;
-			}
-			else {
-				serialized[i] = new Card { exists = false };
-			}
-		}
-		return serialized;
-	}
-	/// <summary>
-	/// 从本地加载卡组
-	/// </summary>
-	public void LoadCardsListFromLocal(int setIndex = -1) {
-		if (setIndex < 0 || setIndex >= CARD_SET_COUNT) {
-			setIndex = CurrentCardSetIndex;
-		}
-		try {
-			string targetPath = cardSetPaths[setIndex];
-			if (File.Exists(targetPath)) {
-				string json = File.ReadAllText(targetPath);
-				CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(json);
-				if (wrapper.cards != null) {
-					ApplyLoadedCards(wrapper.cards);
-				}
-				else {
-					Debug.LogError($"{Log.perfix}卡组不存在，使用默认卡组");
-					InitCardsList();
-				}
-				Debug.Log($"{Log.perfix}从本地加载卡组成功: {cardsList.Length} 张卡片 (卡组编号 {setIndex})");
-			}
-			else {
-				Debug.LogWarning($"{Log.perfix}卡组 {setIndex} 文件不存在，使用预设卡组");
-				Card[] presetInstance = PresetCardsList.GetPresetCardsList(setIndex);
-				ApplyLoadedCards(presetInstance);
-			}
-		}
-		catch (System.Exception e) {
-			Debug.LogError($"{Log.perfix}加载卡组失败: {e.Message}");
-			InitCardsList();
-		}
-		CurrentCardSetIndex = setIndex;
-		CardLevelChanged?.Invoke();
-	}
-	void ApplyLoadedCards(Card[] source) {
-		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
-			cardsList = new Card[MAX_TOTAL_CARDS];
-		}
-		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
-			Card card = (source != null && i < source.Length) ? source[i] : null;
-			if (card == null || !card.exists) {
-				cardsList[i] = null;
-			}
-			else {
-				cardsList[i] = card;
-			}
-		}
-	}
-	/// <summary>
-	/// 切换卡组
-	/// </summary>
-	public void SwitchCardSet(int targetIndex) {
-		if (targetIndex < 0 || targetIndex >= CARD_SET_COUNT) {
-			Debug.LogWarning($"卡组编号无效: {targetIndex}");
-			return;
-		}
-		SaveCardsListToLocal(CurrentCardSetIndex);
-		LoadCardsListFromLocal(targetIndex);
 	}
 
 
@@ -394,11 +282,3 @@ public class CardManager : MonoBehaviour {
 	}
 }
 
-/// <summary>
-/// 卡组包装类，用于JSON序列化
-/// </summary>
-[System.Serializable]
-public class CardListWrapper {
-	public Card[] cards;
-	public int cardSetIndex;
-}

@@ -8,10 +8,12 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 	public GameObject[] playerObjects = new GameObject[MAX_PLAYER_NUM];
 	public Player[] allPlayers = new Player[MAX_PLAYER_NUM];
 	public void Init() {
-		// 创建主机玩家
+		//创建主机玩家
 		(_, currentPlayer) = CreatPlayerAtFirstAvailableSeat();
 		currentPlayer.SetPlayerName("主机玩家");
 		currentPlayer.gameObject.name = "Current Player";
+		//加载玩家卡组
+		CardsStorageManager.Init();
 		GameManager.FinishInit();
 	}
 
