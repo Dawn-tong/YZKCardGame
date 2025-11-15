@@ -1,26 +1,28 @@
-using UnityEngine;
-using System;
-using System.IO;
 using ProtoMessage;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 public class CardManager : MonoBehaviour {
 	// 卡牌位置约束
 	const int NORMAL_CARD_START = 2;    // 普通卡牌起始位置
-	const int MAX_TOTAL_CARDS = 14;     // 最多14张卡牌(2特殊+12普通)
+	public const int MAX_TOTAL_CARDS = 14;     // 最多14张卡牌(2特殊+12普通)
+	const int CARD_SET_COUNT = 5;       // 支持的卡组数量
 	[HideInInspector] public int cardMaxLevel = 10;		// 卡牌最高10星
 	[HideInInspector] public int maxTotalLevel = 55;      // 所有卡牌最多55星
 
 	public Player owner;
 	public Card[] cardsList;
 	public event Action CardLevelChanged;
+	public int CurrentCardSetIndex { get; private set; } = 0;
 
 	//初始化CardManager
 	public void Init(Player owner) {
 		this.owner = owner;
 		cardsList = new Card[MAX_TOTAL_CARDS];
-		cardListPath = Path.Combine(Application.persistentDataPath, "CardList.json");
-		LoadCardsListFromLocal();
+		InitializeCardSetStorage();
+		LoadCardsListFromLocal(CurrentCardSetIndex);
 	}
 	
 
@@ -60,7 +62,7 @@ public class CardManager : MonoBehaviour {
 			Debug.LogWarning($"总等级超出限制: {maxTotalLevel}");
 			return false;
 		}
-		cardsList[cardIndex] = new Card() { index = cardIndex, cardType = CardType.Normal, level = 1, hp = 1, atk = 1, exists = true };
+		cardsList[cardIndex] = new Card() { exists = true, index = cardIndex, cardType = CardType.Normal, level = 1, hp = 1, atk = 1};
 		CardLevelChanged?.Invoke();
 		return true;
 	}
@@ -207,19 +209,37 @@ public class CardManager : MonoBehaviour {
 
 
 
-	string cardListPath;    // 本地保存路径
+	string cardListDirectory;    // 卡组保存目录
+	string[] cardSetPaths;       // 各卡组文件路径
+	//初始化卡组存储
+	void InitializeCardSetStorage() {
+		cardListDirectory = Path.Combine(Application.persistentDataPath, "CardSets");
+		if (!Directory.Exists(cardListDirectory)) {
+			Directory.CreateDirectory(cardListDirectory);
+		}
+		if (cardSetPaths == null || cardSetPaths.Length != CARD_SET_COUNT) {
+			cardSetPaths = new string[CARD_SET_COUNT];
+		}
+		for (int i = 0; i < CARD_SET_COUNT; i++) {
+			cardSetPaths[i] = Path.Combine(cardListDirectory, $"CardList_{i}.json");
+		}
+	}
 	/// <summary>
 	/// 保存卡组到本地
 	/// </summary>
-	public void SaveCardsListToLocal() {
+	public void SaveCardsListToLocal(int setIndex = -1) {
+		if (setIndex < 0 || setIndex >= CARD_SET_COUNT) {
+			setIndex = CurrentCardSetIndex;
+		}
 		try {
-			CardListWrapper wrapper = new CardListWrapper { cards = BuildSerializableCards() };
-			// 转换为JSON
+			CardListWrapper wrapper = new CardListWrapper {
+				cards = BuildSerializableCards(),
+				cardSetIndex = setIndex
+			};
 			string json = JsonUtility.ToJson(wrapper, true);
-			// 写入文件
-			File.WriteAllText(cardListPath, json);
-			Debug.Log($"卡组已保存到: {cardListPath}");
-			Debug.Log($"共保存 {cardsList.Length} 张卡片");
+			string targetPath = cardSetPaths[setIndex];
+			File.WriteAllText(targetPath, json);
+			Debug.Log($"卡组 {setIndex} 已保存到: {targetPath}");
 		}
 		catch (System.Exception e) {
 			Debug.LogError($"保存卡组失败: {e.Message}");
@@ -227,6 +247,9 @@ public class CardManager : MonoBehaviour {
 	}
 	// 将数组包装成可序列化的类
 	Card[] BuildSerializableCards() {
+		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
+			cardsList = new Card[MAX_TOTAL_CARDS];
+		}
 		Card[] serialized = new Card[MAX_TOTAL_CARDS];
 		for (int i = 0; i < MAX_TOTAL_CARDS; i++) {
 			Card card = cardsList[i];
@@ -243,32 +266,36 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 从本地加载卡组
 	/// </summary>
-	public void LoadCardsListFromLocal() {
+	public void LoadCardsListFromLocal(int setIndex = -1) {
+		if (setIndex < 0 || setIndex >= CARD_SET_COUNT) {
+			setIndex = CurrentCardSetIndex;
+		}
 		try {
-			if (File.Exists(cardListPath)) {
-				// 读取文件
-				string json = File.ReadAllText(cardListPath);
-				// 解析JSON
+			string targetPath = cardSetPaths[setIndex];
+			if (File.Exists(targetPath)) {
+				string json = File.ReadAllText(targetPath);
 				CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(json);
-				// 更新卡组
-				if (wrapper.cards != null && wrapper.cards.Length == MAX_TOTAL_CARDS) {
+				if (wrapper.cards != null) {
 					ApplyLoadedCards(wrapper.cards);
 				}
 				else {
-					Debug.LogWarning($"{Log.perfix}加载的卡组数据格式不正确，使用默认卡组");
+					Debug.LogError($"{Log.perfix}卡组不存在，使用默认卡组");
 					InitCardsList();
 				}
-				Debug.Log($"{Log.perfix}从本地加载卡组成功: {cardsList.Length} 张卡片");
+				Debug.Log($"{Log.perfix}从本地加载卡组成功: {cardsList.Length} 张卡片 (卡组编号 {setIndex})");
 			}
 			else {
-				Debug.LogWarning($"{Log.perfix}本地卡组文件不存在");
-				InitCardsList();
+				Debug.LogWarning($"{Log.perfix}卡组 {setIndex} 文件不存在，使用预设卡组");
+				Card[] presetInstance = PresetCardsList.GetPresetCardsList(setIndex);
+				ApplyLoadedCards(presetInstance);
 			}
 		}
 		catch (System.Exception e) {
 			Debug.LogError($"{Log.perfix}加载卡组失败: {e.Message}");
 			InitCardsList();
 		}
+		CurrentCardSetIndex = setIndex;
+		CardLevelChanged?.Invoke();
 	}
 	void ApplyLoadedCards(Card[] source) {
 		if (cardsList == null || cardsList.Length != MAX_TOTAL_CARDS) {
@@ -284,12 +311,30 @@ public class CardManager : MonoBehaviour {
 			}
 		}
 	}
+	/// <summary>
+	/// 切换卡组
+	/// </summary>
+	public void SwitchCardSet(int targetIndex) {
+		if (targetIndex < 0 || targetIndex >= CARD_SET_COUNT) {
+			Debug.LogWarning($"卡组编号无效: {targetIndex}");
+			return;
+		}
+		SaveCardsListToLocal(CurrentCardSetIndex);
+		LoadCardsListFromLocal(targetIndex);
+	}
+
+
+
+
+	
+
 	// 初始化为默认卡牌列表，创建14个位置（前2个位置固定有特殊卡牌）
 	public void InitCardsList() {
-		cardsList[0] = new Card() { index = 0, cardType = CardType.Bomb, exists = true };
-		cardsList[1] = new Card() { index = 1, cardType = CardType.Bomb, exists = true };
+		cardsList[0] = new Card() { exists = true, index = 0, cardType = CardType.Bomb };
+		cardsList[1] = new Card() { exists = true, index = 1, cardType = CardType.Bomb };
 		for (int i = 1; i <= 10; i++) {
 			cardsList[i + 1] = new Card() {
+				exists = true,
 				index = i + 1,
 				cardType = CardType.Normal,
 				level = i,
@@ -355,4 +400,5 @@ public class CardManager : MonoBehaviour {
 [System.Serializable]
 public class CardListWrapper {
 	public Card[] cards;
+	public int cardSetIndex;
 }

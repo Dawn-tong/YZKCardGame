@@ -7,7 +7,7 @@ public class CardSettingBoard : MonoBehaviour {
 	[SerializeField] CardSettingUI_OneCardPanel oneCardPanel;
 	public void OnSceneEnter() {
 		//初始化cardManager
-		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
+		cardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
 		//点击棋盘打开属性面板
 		OnTileClicked += oneCardPanel.ClickBoardToOpenOneCardPanel;
 		//刷新棋盘
@@ -39,6 +39,10 @@ public class CardSettingBoard : MonoBehaviour {
 
 
 	Vector3 clickPosition;
+	float clickTime = 0;
+	bool existCard = false;
+	Card clickCard;
+	GameObject clickCardObject;
 	int clickPositionX;
 	int clickPositionY;
 	public delegate void TileClickDelegate(int positionX, int positionY);
@@ -49,16 +53,53 @@ public class CardSettingBoard : MonoBehaviour {
 				return;
 			}
 			clickPosition = Input.mousePosition;
+			clickTime = Time.time;
 			Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
 			clickPositionX = cellPosition.x;
 			clickPositionY = cellPosition.y;
+			//拿起棋子
+			Card card = cardManager.FindCardByPosition(clickPositionX, clickPositionY);
+			if(card != null) {
+				existCard = true;
+				clickCard = card;
+				clickCardObject = chessBoard[clickPositionX, clickPositionY].gameObject;
+			}
 		}
+
+		//长按拿起棋子
+		if(existCard && Time.time - clickTime > 0.8f) {
+			//设置棋子位置为鼠标位置
+			Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			clickCardObject.transform.position = new Vector3(worldPoint.x, worldPoint.y, 10f);
+			clickCardObject.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+		}
+
 		if (Input.GetMouseButtonUp(0)) {
-			//如果松手时的位置与按下时的位置相近
-			if(Vector2.Distance(clickPosition, Input.mousePosition) < 10f) {
-				OnTileClicked?.Invoke(clickPositionX, clickPositionY);
-			}	
+			//拖拽
+			if(existCard && Time.time - clickTime > 0.8f) {
+				clickCardObject.transform.position = new Vector3(clickCardObject.transform.position.x, clickCardObject.transform.position.y, 0);
+				clickCardObject.transform.localScale = new Vector3(1f, 1f, 1f);
+				//放下棋子
+				Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+				Vector3Int cellPosition = boardTilemap.WorldToCell(worldPoint);
+				if(cellPosition.x >= 0 && cellPosition.x < 4 && cellPosition.y >= 0 && cellPosition.y < 4) {
+					PutCardOnBoard(clickCard, cellPosition.x, cellPosition.y);
+				}
+				else{
+					PutCardOnBoard(clickCard, clickPositionX, clickPositionY);
+				}
+			}
+			//点击
+			else{
+				if(Vector2.Distance(clickPosition, Input.mousePosition) < 10f) {
+					OnTileClicked?.Invoke(clickPositionX, clickPositionY);
+				}	
+			}
+			clickTime = 0;
+			existCard = false;
+			clickCard = null;
+			clickCardObject = null;
 		}
 	}
 
@@ -91,7 +132,7 @@ public class CardSettingBoard : MonoBehaviour {
 			Card card = cardsList[i];
 			if(card != null && card.positionX != -1) {
 				GameObject chess = Instantiate(chessPrefab, parent);
-				chess.transform.position = new Vector3(card.positionX * 1.1f, card.positionY * 1.1f, 0);
+				chess.transform.position = new Vector3(card.positionX * 1.1f + 0.5f, card.positionY * 1.1f + 0.5f, 0);
 				CardSettingChessInfo cardSettingChessInfo = chess.GetComponent<CardSettingChessInfo>();
 				cardSettingChessInfo.card = card;
 				cardSettingChessInfo.index = i;

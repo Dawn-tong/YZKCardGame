@@ -22,7 +22,7 @@ public class CardSettingUI_AllCardsPanel : MonoBehaviour {
 		}
 		allContents.Clear();
 
-		Card[] cardsList = PlayerManager.Instance.currentPlayer.cardManager.cardsList;
+		Card[] cardsList = PlayerManager.Instance.currentPlayer.currentCardManager.cardsList;
 		for (int i = 0; i < cardsList.Length; i++) {
 			//´´½¨ÄÚÈÝ
 			GameObject cardObj = Instantiate(cardPrefab, cardContent);

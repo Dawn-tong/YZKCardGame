@@ -269,7 +269,7 @@ public class RoomService {
 		Player player = PlayerManager.Instance.FindPlayerByNetID(senderID);
 		if (player != null) {
 			receivedCardsCount++;
-			player.cardManager.LoadCardsListFromNet(request.player.cardsList);
+			player.currentCardManager.LoadCardsListFromNet(request.player.cardsList);
 		}
 		//当获取到所有玩家卡组后，通知所有玩家所有的卡组
 		if(receivedCardsCount == PlayerManager.Instance.GetPlayerCount()) {
@@ -286,7 +286,7 @@ public class RoomService {
 			PlayerInfo playerInfo = new PlayerInfo();
 			playerInfo.seatID = p.seatID;
 			playerInfo.playerName = p.playerName;
-			playerInfo.cardsList.SetCardInfoList(p.cardManager.cardsList);
+			playerInfo.cardsList.SetCardInfoList(p.currentCardManager.cardsList);
 			message.Response.gameStart.playersList.Add(playerInfo);
 		}
 		NetManager.Instance.SendMessageToAll(message);
@@ -410,7 +410,7 @@ public class RoomService {
 		message.Request = new NetMessageRequest();
 		message.Request.playerJoinGame = new PlayerJoinGameRequest();
 		message.Request.playerJoinGame.player = new PlayerInfo();
-		message.Request.playerJoinGame.player.cardsList.SetCardInfoList(PlayerManager.Instance.currentPlayer.cardManager.cardsList);
+		message.Request.playerJoinGame.player.cardsList.SetCardInfoList(PlayerManager.Instance.currentPlayer.currentCardManager.cardsList);
 		NetManager.Instance.SendMessageToServer(message);
 	}
 
@@ -439,7 +439,7 @@ public class RoomService {
 				player = newPlayer;
 				player.SetPlayerName(playerInfo.playerName);
 			}
-			player.cardManager.LoadCardsListFromNet(playerInfo.cardsList);
+			player.currentCardManager.LoadCardsListFromNet(playerInfo.cardsList);
 		}
 	}
 }

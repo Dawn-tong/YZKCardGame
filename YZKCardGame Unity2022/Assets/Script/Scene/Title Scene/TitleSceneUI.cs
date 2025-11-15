@@ -40,7 +40,7 @@ public class TitleSceneUI : MonoBehaviour {
 	public void OnSceneEnter() {
 		//判断是否有卡牌放置在棋盘上
 		canEnterGame = false;
-		Card[] cards = PlayerManager.Instance.currentPlayer.cardManager.cardsList;
+		Card[] cards = PlayerManager.Instance.currentPlayer.currentCardManager.cardsList;
 		foreach (Card card in cards) {
 			if (card != null && card.positionX != -1) {
 				canEnterGame = true;

@@ -10,7 +10,7 @@ public class CardSettingUI : MonoBehaviour {
 		SceneLoaderManager.Instance.RegisterSceneLeaveCallback(Scene.CardSetting, OnSceneLeave);
 	}
 	public void OnSceneEnter() {
-		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
+		cardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
 		//订阅星级修改
 		cardManager.CardLevelChanged += UpdateLevelSumText;
 		UpdateLevelSumText();
@@ -33,7 +33,7 @@ public class CardSettingUI : MonoBehaviour {
 
 	public void ClickButtonToGoBackTitle() {
 		//保存卡牌到本地
-		PlayerManager.Instance.currentPlayer.cardManager.SaveCardsListToLocal();
+		PlayerManager.Instance.currentPlayer.currentCardManager.SaveCardsListToLocal();
 		Debug.Log("按钮 - 保存卡组并返回主界面");
 		SceneLoaderManager.Instance.LoadScene(Scene.TitleScene);
 	}
