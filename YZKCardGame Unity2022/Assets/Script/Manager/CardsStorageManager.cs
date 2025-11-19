@@ -9,7 +9,7 @@ public static class CardsStorageManager {
 	const string CardSetIndexPrefsKey = "CardsStorageManager.CurrentCardSetIndex";
 	public static void Init() {
 		InitializeCardSetStorage();
-		currentPlayerCardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
+		currentPlayerCardManager = PlayerManager.Instance.currentPlayer.cardManager;
 		CurrentCardSetIndex = LoadCurrentCardSetIndex();
 		LoadCardsListFromLocal(CurrentCardSetIndex);
 	}

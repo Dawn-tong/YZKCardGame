@@ -272,12 +272,40 @@ public class CardManager : MonoBehaviour {
 	/// <summary>
 	/// 验证卡组是否有效(规则不同就无法加入游戏)
 	/// </summary>
-	public bool IsValidCardsList() {
+	public bool IsValidCardsList(out string errorMessage) {
 		//验证卡牌有效性
 		if(cardsList == null || cardsList.Length <= 0 || cardsList.Length > MAX_TOTAL_CARDS) {
-			Debug.LogError($"卡牌数量无效: {(cardsList == null ? 0 : cardsList.Length)}/{MAX_TOTAL_CARDS}");
+			//Debug.LogError($"卡牌数量无效: {(cardsList == null ? 0 : cardsList.Length)}/{MAX_TOTAL_CARDS}");
+			errorMessage = $"卡牌数量无效: {(cardsList == null ? 0 : cardsList.Length)}/{MAX_TOTAL_CARDS}";
 			return false;
 		}
+		//验证卡牌是否超出最大星级
+		if(CalSumOfCardsLevel() > maxTotalLevel) {
+			//Debug.LogError($"卡牌总星级超出最大星级: {CalSumOfCardsLevel()}/{maxTotalLevel}");
+			errorMessage = $"卡牌总星级超出最大星级: {CalSumOfCardsLevel()}/{maxTotalLevel}";
+			return false;
+		}
+		//验证每张卡牌的星级是否符合要求
+		for(int i = 0; i < MAX_TOTAL_CARDS; i++) {
+			if(cardsList[i] != null) {
+				if(cardsList[i].level > cardMaxLevel) {
+					//Debug.LogError($"卡牌{i}星级超出最大星级: {cardsList[i].level}/{cardMaxLevel}");
+					errorMessage = $"卡牌{i+1}星级超出最大星级: {cardsList[i].level}/{cardMaxLevel}";
+					return false;
+				}
+			}
+		}
+		//验证卡牌位置是否合理
+		for(int i = 0; i < MAX_TOTAL_CARDS; i++) {
+			if(cardsList[i] != null) {
+				if(cardsList[i].positionX < 0 || cardsList[i].positionX > 3 || cardsList[i].positionY < 0 || cardsList[i].positionY > 3) {
+					//Debug.LogError($"卡牌{i}位置不合理: {cardsList[i].positionX},{cardsList[i].positionY}");
+					errorMessage = $"卡牌{i+1}位置不合理: {cardsList[i].positionX},{cardsList[i].positionY}";
+					return false;
+				}
+			}
+		}
+		errorMessage = null;
 		return true;
 	}
 }

@@ -34,6 +34,7 @@ public class RoomService {
 			MessageDistributer<ulong>.Instance.Subscribe<LeaveRoomResponse>(OnLeaveRoomResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<ChangeReadyResponse>(OnPlayerChangeReadyResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<ReadyToStartResponse>(OnReadyToStartResponse);
+			MessageDistributer<ulong>.Instance.Subscribe<FailedToJoinGameResponse>(OnFailedToJoinGameResponse);
 			MessageDistributer<ulong>.Instance.Subscribe<GameStartResponse>(OnGameStartResponse);
 			NetManager.Instance.NetDisconnected += OnRoomCloseResponse;
 			NetManager.Instance.OnJoinRoomSuccess += SendPlayerJoinRoomRequest;
@@ -55,6 +56,7 @@ public class RoomService {
 			MessageDistributer<ulong>.Instance.Unsubscribe<LeaveRoomResponse>(OnLeaveRoomResponse);
 			MessageDistributer<ulong>.Instance.Unsubscribe<ChangeReadyResponse>(OnPlayerChangeReadyResponse);
 			MessageDistributer<ulong>.Instance.Unsubscribe<ReadyToStartResponse>(OnReadyToStartResponse);
+			MessageDistributer<ulong>.Instance.Unsubscribe<FailedToJoinGameResponse>(OnFailedToJoinGameResponse);
 			MessageDistributer<ulong>.Instance.Unsubscribe<GameStartResponse>(OnGameStartResponse);
 			NetManager.Instance.NetDisconnected -= OnRoomCloseResponse;
 			NetManager.Instance.OnJoinRoomSuccess -= SendPlayerJoinRoomRequest;
@@ -269,7 +271,23 @@ public class RoomService {
 		Player player = PlayerManager.Instance.FindPlayerByNetID(senderID);
 		if (player != null) {
 			receivedCardsCount++;
-			player.currentCardManager.LoadCardsListFromNet(request.player.cardsList);
+			player.cardManager.LoadCardsListFromNet(request.player.cardsList);
+			if(!player.cardManager.IsValidCardsList(out string errorMessage)) {
+				NetMessage message = new NetMessage();
+				message.Response = new NetMessageResponse();
+				message.Response.failedToJoinGame = new FailedToJoinGameResponse();
+				message.Response.failedToJoinGame.seatID = player.seatID;
+				message.Response.failedToJoinGame.errorReason = errorMessage;
+				Log.IncreasePerfixLength();
+				Debug.Log($"{Log.perfix}————        通知所有玩家        ————");
+				Debug.Log($"{Log.perfix}消息内容:玩家(座位={player.seatID})加入游戏失败，原因: {errorMessage}");
+				UIMessagePanel.Instance.AddMessage($"通知所有玩家，玩家(座位={player.seatID})加入游戏失败，原因: {errorMessage}");
+				NetManager.Instance.SendMessageToAll(message);
+				Log.ReducePerfixLength();
+				//移除玩家
+				PlayerManager.Instance.RemovePlayerBySeatID(player.seatID);
+				return;
+			}
 		}
 		//当获取到所有玩家卡组后，通知所有玩家所有的卡组
 		if(receivedCardsCount == PlayerManager.Instance.GetPlayerCount()) {
@@ -286,7 +304,7 @@ public class RoomService {
 			PlayerInfo playerInfo = new PlayerInfo();
 			playerInfo.seatID = p.seatID;
 			playerInfo.playerName = p.playerName;
-			playerInfo.cardsList.SetCardInfoList(p.currentCardManager.cardsList);
+			playerInfo.cardsList.SetCardInfoList(p.cardManager.cardsList);
 			message.Response.gameStart.playersList.Add(playerInfo);
 		}
 		NetManager.Instance.SendMessageToAll(message);
@@ -410,8 +428,26 @@ public class RoomService {
 		message.Request = new NetMessageRequest();
 		message.Request.playerJoinGame = new PlayerJoinGameRequest();
 		message.Request.playerJoinGame.player = new PlayerInfo();
-		message.Request.playerJoinGame.player.cardsList.SetCardInfoList(PlayerManager.Instance.currentPlayer.currentCardManager.cardsList);
+		message.Request.playerJoinGame.player.cardsList.SetCardInfoList(PlayerManager.Instance.currentPlayer.cardManager.cardsList);
 		NetManager.Instance.SendMessageToServer(message);
+	}
+
+	/// <summary>
+	/// 客户端收到服务器玩家加入游戏失败的通知
+	/// </summary>
+	void OnFailedToJoinGameResponse(ulong senderID, FailedToJoinGameResponse response) {
+		Debug.Log($"{Log.perfix}消息内容:玩家(座位={response.seatID})加入游戏失败，原因: {response.errorReason}");
+		UIMessagePanel.Instance.AddMessage($"接收:玩家(座位={response.seatID})加入游戏失败，原因: {response.errorReason}");
+		if(response.seatID == PlayerManager.Instance.currentPlayer.seatID) {
+			SceneLoaderManager.Instance.LoadScene(Scene.HallScene);
+			LeaveRoom();
+			return;
+		}
+		else{
+			Player player = PlayerManager.Instance.FindPlayerBySeatID(response.seatID);
+			//移除玩家
+			PlayerManager.Instance.RemovePlayerBySeatID(response.seatID);
+		}
 	}
 
 	/// <summary>
@@ -439,7 +475,7 @@ public class RoomService {
 				player = newPlayer;
 				player.SetPlayerName(playerInfo.playerName);
 			}
-			player.currentCardManager.LoadCardsListFromNet(playerInfo.cardsList);
+			player.cardManager.LoadCardsListFromNet(playerInfo.cardsList);
 		}
 	}
 }
@@ -450,6 +486,9 @@ public class RoomService {
 
 
 static class CardInfoExtensions {
+	/// <summary>
+	/// 将Card数组转换为CardInfo列表
+	/// </summary>
 	public static void SetCardInfoList(this List<CardInfo> cards, Card[] cardsList) {
 		foreach (Card card in cardsList) {
 			if(card == null) continue;

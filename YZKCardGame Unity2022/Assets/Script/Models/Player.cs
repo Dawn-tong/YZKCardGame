@@ -5,15 +5,15 @@ public class Player : MonoBehaviour {
 	public int seatID;	//用于标记自己在服务器中的座位
 	public string playerName;
 	public bool isReady = false;
-	public CardManager currentCardManager;
+	public CardManager cardManager;
 	
 	public void Init(int seatID) {
 		this.seatID = seatID;
 		// 初始化CardManager
-		if (currentCardManager == null) {
-			currentCardManager = gameObject.AddComponent<CardManager>();
+		if (cardManager == null) {
+			cardManager = gameObject.AddComponent<CardManager>();
 		}
-		currentCardManager.Init(this);
+		cardManager.Init(this);
 	}
 	public Player SetNetID(ulong netID) {
 		this.netID = netID;

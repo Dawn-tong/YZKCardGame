@@ -5,7 +5,7 @@ public class CardSettingUI : MonoBehaviour {
 	public Text LevelSumText;
 	CardManager cardManager;
 	public void OnSceneEnter() {
-		cardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
+		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
 		//¶©ÔÄĞÇ¼¶ĞŞ¸Ä
 		cardManager.CardLevelChanged += UpdateLevelSumText;
 		UpdateLevelSumText();

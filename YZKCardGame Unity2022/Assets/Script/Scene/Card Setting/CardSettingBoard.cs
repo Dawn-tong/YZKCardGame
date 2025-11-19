@@ -7,7 +7,7 @@ public class CardSettingBoard : MonoBehaviour {
 	[SerializeField] CardSettingUI_OneCardPanel oneCardPanel;
 	public void OnSceneEnter() {
 		//初始化cardManager
-		cardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
+		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
 		//点击棋盘打开属性面板
 		OnTileClicked += oneCardPanel.ClickBoardToOpenOneCardPanel;
 		//刷新棋盘

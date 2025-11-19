@@ -7,7 +7,7 @@ public class CardSettingUI_OneCardPanel : MonoBehaviour {
 	CardManager cardManager;
 	public void OnSceneEnter() {
 		cardInfo = GetComponent<CardSettingCardInfo>();
-		cardManager = PlayerManager.Instance.currentPlayer.currentCardManager;
+		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
 	}
 	
 	

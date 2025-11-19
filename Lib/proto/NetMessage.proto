@@ -52,7 +52,8 @@ message NetMessageResponse {
 	required LeaveRoomResponse leaveRoom = 4;			//有玩家离开房间
 
 	required ReadyToStartResponse readyToStart = 5;		//发送游戏开始响应,等待客户端回应自己的卡牌组
-	required GameStartResponse gameStart = 6;			//接收完所有玩家卡牌,通知所有玩家所有的卡牌组
+	required FailedToJoinGameResponse failedToJoinGame = 6;//检验卡牌组是否有效并通知是否成功加入
+	required GameStartResponse gameStart = 7;			//接收完所有玩家卡牌,通知所有玩家所有的卡牌组
 }
 
 
@@ -97,6 +98,10 @@ message ReadyToStartResponse {
 }
 message PlayerJoinGameRequest {
 	required PlayerInfo player = 1;
+}
+message FailedToJoinGameResponse {
+	required int32 seatID = 1;
+	required string errorReason = 2;
 }
 message GameStartResponse {
 	repeated PlayerInfo playersList = 1;

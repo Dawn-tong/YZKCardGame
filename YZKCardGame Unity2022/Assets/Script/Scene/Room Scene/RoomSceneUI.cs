@@ -30,16 +30,22 @@ public class RoomSceneUI : MonoBehaviour {
 
 
 
-	public Text roomNumberText;
-	public Text creatOrAddRoomText;
-	public GameObject allPlayerPanel;
-	public GameObject[] playerTextPanel = new GameObject[4];
-	public Text[] playerNameText = new Text[4];
-	public Text[] readyStateText = new Text[4];
-	public Button startButton;
-	public Button readyButton;
-	public Text readyButtonText;
-	public Button leaveRoomButton;
+	[SerializeField] GameObject roomNumberPanel;
+	[SerializeField] Text roomNumberText;
+	[SerializeField] Text creatOrAddRoomText;
+	[SerializeField] GameObject allPlayerPanel;
+	[SerializeField] GameObject[] playerTextPanel = new GameObject[4];
+	[SerializeField] Text[] playerNameText = new Text[4];
+	[SerializeField] Text[] readyStateText = new Text[4];
+	[SerializeField] Button startButton;
+	[SerializeField] Button readyButton;
+	[SerializeField] Text readyButtonText;
+	[SerializeField] Button leaveRoomButton;
+	public void ClickButtonToCopyRoomNumber() {
+		//复制房间号到剪贴板
+		GUIUtility.systemCopyBuffer = NetManager.Instance.GetCurrentJoinCode();
+		UIMessagePanel.Instance.AddMessage("房间号已复制到剪贴板");
+	}
 	public void ClickButtonToStartGame() {
 		Debug.Log("按钮 - 开始游戏");
 		SceneLoaderManager.Instance.LoadScene(Scene.GameScene);
@@ -83,7 +89,7 @@ public class RoomSceneUI : MonoBehaviour {
 		creatOrAddRoomText.gameObject.SetActive(false);
 		//显示房间号
 		roomNumberText.text = $"房间号: {NetManager.Instance.GetCurrentJoinCode()}";
-		roomNumberText.gameObject.SetActive(true);
+		roomNumberPanel.SetActive(true);
 		//显示所有玩家
 		allPlayerPanel.gameObject.SetActive(true);
 		//显示准备按钮
