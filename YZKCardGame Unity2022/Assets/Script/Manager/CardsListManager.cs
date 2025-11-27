@@ -10,7 +10,7 @@ public class CardsListManager : MonoBehaviour {
 	const int NORMAL_CARD_START = 2;    // 普通卡牌起始位置
 	public const int MAX_TOTAL_CARDS = 14;     // 最多14张卡牌(2特殊+12普通)
 	const int CARD_SET_COUNT = 5;       // 支持的卡组数量
-	[HideInInspector] public int cardMaxLevel = 10;		// 卡牌最高10星
+	[HideInInspector] public int cardMaxLevel = 12;		// 卡牌最高12星
 	[HideInInspector] public int maxTotalLevel = 55;      // 所有卡牌最多55星
 
 	public Player owner;
@@ -128,9 +128,17 @@ public class CardsListManager : MonoBehaviour {
 		if (CalSumOfCardsLevel() >= maxTotalLevel) {
 			return false;
 		}
-		card.level++;
-		card.hp++;
-		card.atk++;
+		// 根据升级前的星级决定如何增加属性
+		if (card.level < 8) {
+			// 小于8级：升级时+1攻和1血
+			card.level++;
+			card.hp++;
+			card.atk++;
+		} else {
+			// 大于等于8级：升级时+1血（不加攻）
+			card.level++;
+			card.hp++;
+		}
 		CardLevelChanged?.Invoke();
 		return true;
 	}
@@ -139,26 +147,37 @@ public class CardsListManager : MonoBehaviour {
 		if(card == null || card.level <= 1) {
 			return false;
 		}
+		if (card.level <= 8) {
+			// 小于等于8级：降级时降低1攻和1血
+			ReduceCardHP(card);
+			ReduceCardAtk(card);
+		} 
+		else {
+			// 大于8级：降级时降低1血
+			ReduceCardHP(card);
+		}
 		card.level--;
-		//降低生命值
-		if(card.hp <= 1) {
-			//生命值不足时降低攻击力
-			card.atk--;
-		}
-		else {
-			card.hp--;
-		}
-		//降低攻击力
-		if(card.atk <= 1) {
-			//攻击力不足时降低生命值
-			card.hp--;
-		}
-		else {
-			card.atk--;
-		}
 		CardLevelChanged?.Invoke();
 		return true;
 	}
+	void ReduceCardHP(Card card){
+		if (card.hp > 1) {
+			card.hp--;
+		} 
+		else {
+			card.atk--;
+		}
+	}
+	void ReduceCardAtk(Card card){
+		if (card.atk > 1) {
+			card.atk--;
+		} 
+		else {
+			card.hp--;
+		}
+	}
+
+	//修改卡牌生命值
 	public bool CardHpUp(int index) {
 		Card card = GetCard(index);
 		if(card == null || card.atk <= 1) {
@@ -168,6 +187,7 @@ public class CardsListManager : MonoBehaviour {
 		card.atk--;
 		return true;
 	}
+	//修改卡牌攻击力
 	public bool CardAtkUp(int index) {
 		Card card = GetCard(index);
 		if(card == null || card.hp <= 1) {
@@ -278,22 +298,22 @@ public class CardsListManager : MonoBehaviour {
 	public bool IsValidCardsList(out string errorMessage) {
 		//验证卡牌有效性
 		if(cardsArray == null || cardsArray.Length <= 0 || cardsArray.Length > MAX_TOTAL_CARDS) {
-			//Debug.LogError($"卡牌数量无效: {(cardsArray == null ? 0 : cardsArray.Length)}/{MAX_TOTAL_CARDS}");
-			errorMessage = $"卡牌数量无效: {(cardsArray == null ? 0 : cardsArray.Length)}/{MAX_TOTAL_CARDS}";
+			errorMessage = $"卡组数量无效: {(cardsArray == null ? 0 : cardsArray.Length)}/{MAX_TOTAL_CARDS}";
 			return false;
 		}
-		//验证卡牌是否超出最大星级
+		//验证卡组总星级是否超出最大星级
 		if(CalSumOfCardsLevel() > maxTotalLevel) {
-			//Debug.LogError($"卡牌总星级超出最大星级: {CalSumOfCardsLevel()}/{maxTotalLevel}");
-			errorMessage = $"卡牌总星级超出最大星级: {CalSumOfCardsLevel()}/{maxTotalLevel}";
+			errorMessage = $"卡组总星级超出最大星级: {CalSumOfCardsLevel()}/{maxTotalLevel}";
 			return false;
 		}
-		//验证每张卡牌的星级是否符合要求
+		//验证普通卡牌属性是否合理(<=8级的卡牌生命+攻击=2*星级,>8级的卡牌生命+攻击=星级+8)
 		for(int i = 0; i < MAX_TOTAL_CARDS; i++) {
 			if(cardsArray[i] != null) {
-				if(cardsArray[i].level > cardMaxLevel) {
-					//Debug.LogError($"卡牌{i}星级超出最大星级: {cardsArray[i].level}/{cardMaxLevel}");
-					errorMessage = $"卡牌{i+1}星级超出最大星级: {cardsArray[i].level}/{cardMaxLevel}";
+				if(cardsArray[i].cardType != CardType.Normal) {
+					continue;
+				}
+				if(!IsValidNormalCard(cardsArray[i])) {
+					errorMessage = $"卡牌{cardsArray[i].index+1}属性不合理: {cardsArray[i].hp},{cardsArray[i].atk}";
 					return false;
 				}
 			}
@@ -302,7 +322,6 @@ public class CardsListManager : MonoBehaviour {
 		for(int i = 0; i < MAX_TOTAL_CARDS; i++) {
 			if(cardsArray[i] != null) {
 				if(cardsArray[i].positionX < 0 || cardsArray[i].positionX > 3 || cardsArray[i].positionY < 0 || cardsArray[i].positionY > 3) {
-					//Debug.LogError($"卡牌{i}位置不合理: {cardsArray[i].positionX},{cardsArray[i].positionY}");
 					errorMessage = $"卡牌{i+1}位置不合理: {cardsArray[i].positionX},{cardsArray[i].positionY}";
 					return false;
 				}
@@ -310,6 +329,35 @@ public class CardsListManager : MonoBehaviour {
 		}
 		errorMessage = null;
 		return true;
+	}
+	/// <summary>
+	/// 验证普通卡牌属性是否合理(<=8级的卡牌生命+攻击=2*星级,>8级的卡牌生命+攻击=星级+8)
+	/// </summary>
+	public bool IsValidNormalCard(Card card) {
+		if(card.level <= 0 || card.level > cardMaxLevel || card.hp <= 0 || card.atk <= 0) {
+			return false;
+		}
+		if(card.level <= 8) {
+			if(card.hp + card.atk != 2 * card.level) {
+				return false;
+			}
+		}
+		else {
+			if(card.hp + card.atk != card.level + 8) {
+				return false;
+			}
+		}
+		return true;
+	}
+	/// <summary>
+	/// 重置普通卡牌属性为默认值
+	/// </summary>
+	public void ResetNormalCardToDefault(Card card) {
+		if(card == null) {
+			return;
+		}
+		card.hp = card.level;
+		card.atk = Mathf.Min(card.level, 8);
 	}
 }
 

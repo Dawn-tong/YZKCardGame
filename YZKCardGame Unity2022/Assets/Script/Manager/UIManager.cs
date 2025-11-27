@@ -31,6 +31,7 @@ public class UIManager : ManagerBase<UIManager> {
 	public void InitAllCreatableUI(){
 		UIResources.Add(typeof(UIPopup), new UIElement() { resourcePath = "Prefab/UI/UIPopup", isSingleton = true });
 		UIResources.Add(typeof(UIMessage), new UIElement() { resourcePath = "Prefab/UI/UIMessage", isSingleton = true });
+		UIResources.Add(typeof(UIInput), new UIElement() { resourcePath = "Prefab/UI/UIInput", isSingleton = true });
 	}
 
 

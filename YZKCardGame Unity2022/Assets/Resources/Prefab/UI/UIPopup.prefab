@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 3667279944532895647}
   - component: {fileID: 6397472310688587340}
   - component: {fileID: 5679214080753187207}
-  - component: {fileID: 5042422178746970444}
+  - component: {fileID: -6721408714495438779}
   m_Layer: 5
   m_Name: UIPopup
   m_TagString: Untagged
@@ -192,7 +192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e817fdaeb779bc64aae2715775fe9caf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5042422178746970444
+--- !u!114 &-6721408714495438779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -201,19 +201,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 570655510233445069}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 340becc9beffc4b49b3da0bb411bcd6b, type: 3}
+  m_Script: {fileID: 11500000, guid: ab6ee4e27e7634f4da87dc05cae4da93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goBackReigon: {fileID: 4116818232516938364}
-  window: {fileID: 7726364392612831205}
-  windowMinHeight: 450
-  windowMaxHeight: 850
-  titleText: {fileID: 2690093845030165879}
-  contentRectTransform: {fileID: 3887580425204960147}
-  contentText: {fileID: 702767631566731805}
-  confirmButton: {fileID: 342423539319868087}
-  cancelButton: {fileID: 6199418882849980197}
-  noMoreTipToggle: {fileID: 5524794905890109050}
 --- !u!1 &1150234822932378509
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +400,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5042422178746970444}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UIPopup, Assembly-CSharp
         m_MethodName: ClickButtonToCancel
         m_Mode: 1
@@ -621,7 +611,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5042422178746970444}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UIPopup, Assembly-CSharp
         m_MethodName: ClickButtonToCancel
         m_Mode: 1
@@ -1475,7 +1465,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5042422178746970444}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UIPopup, Assembly-CSharp
         m_MethodName: ClickButtonToConfirm
         m_Mode: 1

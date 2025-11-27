@@ -70,14 +70,20 @@ public class GameService {
 
 	//卡片攻击
 	public void CardAttack(Card attacker, Card defender) {
+		attacker.isFought = true;
+		defender.isFought = true;
 		if (attacker.cardType == CardType.Bomb) {
-			CardLoseHp(defender, 20);
+			CardLoseHp(defender, 99);
 		}
 		else {
 			CardLoseHp(defender, attacker.atk);
+			//如果防御方死亡，则使攻击方移动到防御方位置
+			if(defender.hp <= 0) {
+				GameSceneBoardManager.Instance.MoveChess(attacker.positionX, attacker.positionY, defender.positionX, defender.positionY);
+			}
 		}
 		if (defender.cardType == CardType.Bomb) {
-			CardLoseHp(attacker, 20);
+			CardLoseHp(attacker, 99);
 		}
 		else {
 			CardLoseHp(attacker, defender.atk);
@@ -88,14 +94,7 @@ public class GameService {
 		card.hp -= atk;
 		card.chessComponent.UpdateChess();
 		if(card.hp <= 0) {
-			CardDie(card);
-		}
-	}
-	//卡片死亡
-	public void CardDie(Card card) {
-		Chess chess = card.chessComponent;
-		if(chess != null) {
-			chess.DestroyChess();
+			card.chessComponent.DestroyChess();
 		}
 	}
 }

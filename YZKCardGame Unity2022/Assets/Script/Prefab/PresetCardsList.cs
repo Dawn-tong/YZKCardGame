@@ -34,8 +34,8 @@ public class PresetCardsList {
 			CreateNormalCard(deck, 8, (6, 6, 6), (3, 3));
 			CreateNormalCard(deck, 9, (7, 7, 7), (4, 1));
 			CreateNormalCard(deck, 10, (8, 8, 8), (3, 4));
-			CreateNormalCard(deck, 11, (9, 9, 9), (1, 4));
-			CreateNormalCard(deck, 12, (10, 10, 10), (4, 2));
+			CreateNormalCard(deck, 11, (9, 9, 8), (1, 4));
+			CreateNormalCard(deck, 12, (10, 10, 8), (4, 2));
 			presetCardsList[0] = deck;
 		}
 		return CloneCardArray(presetCardsList[0]);
@@ -53,8 +53,8 @@ public class PresetCardsList {
 			CreateNormalCard(deck, 8, (6, 6, 6), (2, 4));
 			CreateNormalCard(deck, 9, (7, 7, 7), (3, 1));
 			CreateNormalCard(deck, 10, (8, 8, 8), (1, 3));
-			CreateNormalCard(deck, 11, (9, 9, 9), (2, 3));
-			CreateNormalCard(deck, 12, (10, 10, 10), (3, 2));
+			CreateNormalCard(deck, 11, (9, 9, 8), (2, 3));
+			CreateNormalCard(deck, 12, (10, 10, 8), (3, 2));
 			presetCardsList[1] = deck;
 		}
 		return CloneCardArray(presetCardsList[1]);
@@ -72,8 +72,8 @@ public class PresetCardsList {
 			CreateNormalCard(deck, 8, (6, 6, 6), (4, 1));
 			CreateNormalCard(deck, 9, (7, 7, 7), (3, 2));
 			CreateNormalCard(deck, 10, (8, 8, 8), (2, 3));
-			CreateNormalCard(deck, 11, (9, 9, 9), (3, 4));
-			CreateNormalCard(deck, 12, (10, 10, 10), (4, 3));
+			CreateNormalCard(deck, 11, (9, 9, 8), (3, 4));
+			CreateNormalCard(deck, 12, (10, 10, 8), (4, 3));
 			presetCardsList[2] = deck;
 		}
 		return CloneCardArray(presetCardsList[2]);
@@ -105,15 +105,15 @@ public class PresetCardsList {
 			CreateSpecialCard(deck, 1, CardType.Bomb, 1, 3);
 			CreateSpecialCard(deck, 2, CardType.Bomb, 3, 1);
 			CreateNormalCard(deck, 3, (1, 1, 1), (4, 4));
-			CreateNormalCard(deck, 4, (3, 3, 3), (1, 4));
-			CreateNormalCard(deck, 5, (3, 3, 3), (3, 4));
-			CreateNormalCard(deck, 6, (3, 3, 3), (3, 2));
-			CreateNormalCard(deck, 7, (5, 5, 5), (2, 3));
-			CreateNormalCard(deck, 8, (5, 5, 5), (4, 3));
-			CreateNormalCard(deck, 9, (5, 5, 5), (4, 1));
-			CreateNormalCard(deck, 10, (10, 10, 10), (2, 4));
-			CreateNormalCard(deck, 11, (10, 10, 10), (3, 3));
-			CreateNormalCard(deck, 12, (10, 10, 10), (4, 2));
+			CreateNormalCard(deck, 4, (3, 1, 5), (1, 4));
+			CreateNormalCard(deck, 5, (3, 1, 5), (3, 4));
+			CreateNormalCard(deck, 6, (3, 1, 5), (3, 2));
+			CreateNormalCard(deck, 7, (3, 1, 5), (2, 3));
+			CreateNormalCard(deck, 8, (3, 1, 5), (4, 3));
+			CreateNormalCard(deck, 9, (3, 1, 5), (4, 1));
+			CreateNormalCard(deck, 10, (12, 12, 8), (2, 4));
+			CreateNormalCard(deck, 11, (12, 12, 8), (3, 3));
+			CreateNormalCard(deck, 12, (12, 12, 8), (4, 2));
 			presetCardsList[4] = deck;
 		}
 		return CloneCardArray(presetCardsList[4]);

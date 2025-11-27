@@ -5,10 +5,23 @@ using UnityEngine.UI;
 
 public class TitleSceneUI : MonoBehaviour {
 	public Text titleText;
+	public Text playerNameText;
 	public Button gameStartButton;
 	public Button CardsSetButton;
 	public Button gameExitButton;
 
+	public void ClickButtonToResetPlayerName() {
+		Debug.Log("按钮 - 输入玩家名称");
+		UIManager.Instance.CreateUI<UIInput>().InitUIInput("修改名字", "请输入新的名字", 
+			(isConfirm, result) => {
+				if (isConfirm && result != null && result != "") {
+					PlayerManager.Instance.currentPlayer.SetPlayerName(result);
+					playerNameText.text = result;
+					PlayerDataStorage.SavePlayerData();
+				}
+			}
+		);
+	}
 	public void ClickButtonToRuleScene() {
 		Debug.Log("按钮 - 加载规则场景");
 		SceneLoaderManager.Instance.LoadScene(Scene.RuleScene);
@@ -47,5 +60,7 @@ public class TitleSceneUI : MonoBehaviour {
 				break;
 			}
 		}
+		//更新玩家名称
+		playerNameText.text = PlayerManager.Instance.currentPlayer.playerName;
 	}
 }

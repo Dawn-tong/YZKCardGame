@@ -40,7 +40,6 @@ public class NetManager : ManagerBase<NetManager> {
 				await UnityServices.InitializeAsync();
 				await AuthenticationService.Instance.SignInAnonymouslyAsync();
 				string playerName = AuthenticationService.Instance.PlayerId.Substring(0, 16);
-				PlayerManager.Instance.currentPlayer.SetPlayerName(playerName);
 			}
 		}
 		catch (System.Exception e) {

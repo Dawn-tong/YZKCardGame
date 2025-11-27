@@ -21,6 +21,9 @@ public class Chess : MonoBehaviour {
 	[SerializeField] TextMesh SkillText;
 
 	public void UpdateChess() {
+		if(card.isFought) {
+			HpText.color = Color.red;
+		}
 		if(!card.isVisible) {
 			normalPanel.SetActive(false);
 			specialPanel.SetActive(false);
@@ -46,7 +49,8 @@ public class Chess : MonoBehaviour {
 	}
 
 	public void ShowIndex() {
-		levelPanel.transform.position = new Vector3(0, 0, 0);
+		Debug.Log($"levelPanel.transform.localPosition = {levelPanel.transform.localPosition}");
+		levelPanel.transform.localPosition = new Vector3(0, 0, 0);
 		indexPanel.SetActive(true);
 		indexText.text = (card.index + 1).ToString();
 	}

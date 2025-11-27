@@ -11,10 +11,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 	public void Init() {
 		//创建主机玩家
 		(_, currentPlayer) = CreatPlayerAtFirstAvailableSeat();
-		currentPlayer.SetPlayerName("主机玩家");
 		currentPlayer.gameObject.name = "Current Player";
-		//加载玩家卡组
-		CardsStorage.Init();
 		GameManager.FinishInit();
 	}
 

@@ -16,6 +16,7 @@ public class Card {
 	[HideInInspector] public Chess chessComponent;	//对应的棋子组件
 	public bool isSelfCard;		//是自己的才可以移动
 	public bool isVisible;		//是可被看到属性的
+	public bool isFought;		//是战斗过的
 	
 	public int index = -1;
 	public CardType cardType;
@@ -34,9 +35,14 @@ public class Card {
 		atk = 0;
 		positionX = -1;
 		positionY = -1;
+		isFought = false;
 	}
 
 	public Card(int index, CardType cardType, int level, int hp, int atk, int positionX, int positionY){
+		if(index < 0 || index >= CardsListManager.MAX_TOTAL_CARDS) {
+			this.exists = false;
+			return;
+		}
 		this.exists = true;
 		this.index = index;
 		this.cardType = cardType;
@@ -45,6 +51,7 @@ public class Card {
 		this.atk = atk;
 		this.positionX = positionX;
 		this.positionY = positionY;
+		this.isFought = false;
 	}
 
 	public Card(Card card){
@@ -58,6 +65,7 @@ public class Card {
 		this.atk = card.atk;
 		this.positionX = card.positionX;
 		this.positionY = card.positionY;
+		this.isFought = card.isFought;
 	}
 
 	public override string ToString() {

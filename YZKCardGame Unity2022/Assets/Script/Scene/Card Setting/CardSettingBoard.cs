@@ -159,8 +159,8 @@ public class CardSettingBoard : MonoBehaviour {
 				chess.transform.position = new Vector3(card.positionX * 1.1f + 0.5f, card.positionY * 1.1f + 0.5f, 0);
 				Chess cardSettingChessInfo = chess.GetComponent<Chess>();
 				cardSettingChessInfo.card = card;
-				cardSettingChessInfo.UpdateChess();
 				cardSettingChessInfo.ShowIndex();
+				cardSettingChessInfo.UpdateChess();
 				chessBoard[card.positionX, card.positionY] = cardSettingChessInfo;
 			}
 		}

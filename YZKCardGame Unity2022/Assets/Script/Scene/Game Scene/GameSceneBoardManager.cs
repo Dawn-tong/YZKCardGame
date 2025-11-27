@@ -45,6 +45,7 @@ public class GameSceneBoardManager : MonoBehaviour {
 		downEdge = 0;
 		leftEdge = 0;
 		rightEdge = sideLength - 1;
+		RefreshBoardSprite();
 	}
 
 	//创建棋子
@@ -87,53 +88,69 @@ public class GameSceneBoardManager : MonoBehaviour {
 		if(upEdge <= downEdge) {
 			return;
 		}
-		if (x == upEdge) {
+		if (x == rightEdge) {
 			for (int i = 0; i < 12; i++) {
 				if (chessObjects[x, i] != null) {
 					return;
 				}
 			}
-			upEdge--;
-			CheckEdgeX(upEdge);
+			rightEdge--;
+			RefreshBoardSprite();
+			CheckEdgeX(rightEdge);
 		}
-		if (x == downEdge) {
+		if (x == leftEdge) {
 			for (int i = 0; i < 12; i++) {
 				if (chessObjects[x, i] != null) {
 					return;
 				}
 			}
-			downEdge++;
-			CheckEdgeX(downEdge);
+			leftEdge++;
+			RefreshBoardSprite();
+			CheckEdgeX(leftEdge);
 		}
 	}
 	public void CheckEdgeY(int y) {
 		if(rightEdge <= leftEdge) {
 			return;
 		}
-		if (y == rightEdge) {
+		if (y == upEdge) {
 			for (int i = 0; i < 12; i++) {
 				if (chessObjects[i, y] != null) {
 					return;
 				}
 			}
-			rightEdge--;
-			CheckEdgeY(rightEdge);
+			upEdge--;
+			RefreshBoardSprite();
+			CheckEdgeY(upEdge);
 		}
-		if (y == leftEdge) {
+		if (y == downEdge) {
 			for (int i = 0; i < 12; i++) {
 				if (chessObjects[i, y] != null) {
 					return;
 				}
 			}
-			leftEdge++;
-			CheckEdgeY(leftEdge);
+			downEdge++;
+			RefreshBoardSprite();
+			CheckEdgeY(downEdge);
 		}
 	}
 	public void RefreshCameraDrag() {
 		Vector2 leftDownEdge = new Vector2(leftEdge * 1.1f, downEdge * 1.1f);
-		Vector2 rightUpEdge = new Vector2(rightEdge * 1.1f-0.1f, upEdge * 1.1f-0.1f);
+		Vector2 rightUpEdge = new Vector2(rightEdge * 1.3f-0.1f, upEdge * 1.3f-0.1f);
 		CameraDragManager.Instance.SetCurrentController(leftDownEdge, rightUpEdge);
 	}
+	//超出边界的部分将删除图片
+	void RefreshBoardSprite() {
+		for (int x = 0; x < 12; x++) {
+			for (int y = 0; y < 12; y++) {
+				if (x < leftEdge || x > rightEdge || y < downEdge || y > upEdge) {
+					currentBoard.SetTile(new Vector3Int(x, y, 0), null);
+				}
+			}
+		}
+	}
+
+
 
 	//攻击
 	public void AttackChess(int oldX, int oldY, int newX, int newY) {

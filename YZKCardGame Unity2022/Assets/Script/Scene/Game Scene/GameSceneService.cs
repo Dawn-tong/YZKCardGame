@@ -47,7 +47,7 @@ public class GameSceneService {
 		GameCommunicateService.Instance.BeforeStartGame();
 		Debug.Log("创建棋盘");
 		if (PlayerManager.Instance.GetPlayerCount() <= 2) {
-			GameSceneBoardManager.Instance.InitBoard(10);
+			GameSceneBoardManager.Instance.InitBoard(9);
 			CameraDragManager.Instance.SetCurrentController(new Vector2(0, 0), new Vector2(10.9f, 10.9f), 2f, 7f);
 		}
 		else{
@@ -100,7 +100,7 @@ public class GameSceneService {
 			}
 			float rotate = ((int)player.cornerID - 1) * 90f;
 			foreach (Card card in player.cardManager.cardsArray) {
-				if(card == null || !card.exists) {
+				if(card == null || !card.exists || card.index < 0) {
 					continue;
 				}
 				//创建卡片副本

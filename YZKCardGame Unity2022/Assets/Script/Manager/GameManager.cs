@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour {
 		initActions.Add(SceneLoaderManager.Instance.Init);//需要在CameraDragManager之前
 		initActions.Add(CameraDragManager.Instance.Init);//需要在SceneLoaderManager之后
 		initActions.Add(UIManager.Instance.Init);
+		initActions.Add(StorageManager.Instance.Init);
 		Debug.Log($"{Log.perfix}注册了 {initActions.Count} 个待初始化Manager");
 		foreach (var initAction in initActions) {
 			initAction();  // 直接调用
