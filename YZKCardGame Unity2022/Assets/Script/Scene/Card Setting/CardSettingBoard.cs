@@ -3,7 +3,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
 public class CardSettingBoard : MonoBehaviour {
-	CardManager cardManager;
+	CardsListManager cardManager;
 	[SerializeField] CardSettingUI_OneCardPanel oneCardPanel;
 	public void OnSceneEnter() {
 		//初始化cardManager
@@ -49,22 +49,19 @@ public class CardSettingBoard : MonoBehaviour {
 	public delegate void TileClickDelegate(int positionX, int positionY);
 	public TileClickDelegate OnTileClicked;
 	void Update() {
-		if (Input.GetMouseButtonDown(0)) {
+		if (Input.GetMouseButtonDown(0) && !UIShield.IsClickBlockingUI()) {
 			MouseDown();
 		}
 		//长按拿起棋子
 		if(existCard) {
 			MouseHolding();
 		}
-		if (Input.GetMouseButtonUp(0)) {
+		if (Input.GetMouseButtonUp(0) && !UIShield.IsClickBlockingUI()) {
 			MouseUp();
 		}
 	}
 	//鼠标按下
 	void MouseDown() {
-		if (UIShield.IsClickBlockingUI()) {
-			return;
-		}
 		clickPosition = Input.mousePosition;
 		clickTime = Time.time;
 		Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -122,7 +119,7 @@ public class CardSettingBoard : MonoBehaviour {
 		else{
 			if(Vector2.Distance(clickPosition, Input.mousePosition) < 10f) {
 				OnTileClicked?.Invoke(clickPositionX, clickPositionY);
-			}	
+			}
 		}
 		clickTime = 0;
 		existCard = false;
@@ -136,7 +133,7 @@ public class CardSettingBoard : MonoBehaviour {
 
 
 	[SerializeField] GameObject chessPrefab;
-	CardSettingChessInfo[,] chessBoard = new CardSettingChessInfo[10, 10];
+	Chess[,] chessBoard = new Chess[10, 10];
 	//放置棋子
 	public void PutCardOnBoard(Card card, int positionX, int positionY) {
 		cardManager.PutCardToPosition(card, positionX, positionY);
@@ -153,17 +150,17 @@ public class CardSettingBoard : MonoBehaviour {
 				}
 			}
 		}
-		Card[] cardsList = cardManager.cardsList;
+		Card[] cardsList = cardManager.cardsArray;
 		Transform parent = boardTilemap.gameObject.transform;
 		for (int i = 0; i < cardsList.Length; i++) {
 			Card card = cardsList[i];
 			if(card != null && card.positionX != -1) {
 				GameObject chess = Instantiate(chessPrefab, parent);
 				chess.transform.position = new Vector3(card.positionX * 1.1f + 0.5f, card.positionY * 1.1f + 0.5f, 0);
-				CardSettingChessInfo cardSettingChessInfo = chess.GetComponent<CardSettingChessInfo>();
+				Chess cardSettingChessInfo = chess.GetComponent<Chess>();
 				cardSettingChessInfo.card = card;
-				cardSettingChessInfo.index = i;
-				cardSettingChessInfo.UpdateChessInfo();
+				cardSettingChessInfo.UpdateChess();
+				cardSettingChessInfo.ShowIndex();
 				chessBoard[card.positionX, card.positionY] = cardSettingChessInfo;
 			}
 		}
@@ -173,7 +170,7 @@ public class CardSettingBoard : MonoBehaviour {
 		if (positionX == -1) {
 			return;
 		}
-		chessBoard[positionX, positionY].UpdateChessInfo();
+		chessBoard[positionX, positionY].UpdateChess();
 	}
 	//删除棋子
 	public void DeleteBoardChess(int positionX, int positionY) {

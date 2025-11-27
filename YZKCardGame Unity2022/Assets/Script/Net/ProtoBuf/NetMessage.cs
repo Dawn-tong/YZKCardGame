@@ -195,6 +195,15 @@ namespace ProtoMessage
       get { return _playerJoinGame; }
       set { _playerJoinGame = value; }
     }
+    private ProtoMessage.TurnActionRequest _turnAction;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"turnAction", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"turnAction", Order = 4, IsRequired = true)]
+    
+    public ProtoMessage.TurnActionRequest turnAction
+    {
+      get { return _turnAction; }
+      set { _turnAction = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -268,6 +277,24 @@ namespace ProtoMessage
     {
       get { return _gameStart; }
       set { _gameStart = value; }
+    }
+    private ProtoMessage.TurnToPlayResponse _turnToPlay;
+    [global::ProtoBuf.ProtoMember(8, IsRequired = true, Name=@"turnToPlay", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"turnToPlay", Order = 8, IsRequired = true)]
+    
+    public ProtoMessage.TurnToPlayResponse turnToPlay
+    {
+      get { return _turnToPlay; }
+      set { _turnToPlay = value; }
+    }
+    private ProtoMessage.PlayerActionResponse _playerAction;
+    [global::ProtoBuf.ProtoMember(9, IsRequired = true, Name=@"playerAction", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"playerAction", Order = 9, IsRequired = true)]
+    
+    public ProtoMessage.PlayerActionResponse playerAction
+    {
+      get { return _playerAction; }
+      set { _playerAction = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -514,6 +541,120 @@ namespace ProtoMessage
       get { return _playersList; }
     }
   
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"TurnToPlayResponse")]
+  [global::System.Runtime.Serialization.DataContract(Name=@"TurnToPlayResponse")]
+  public partial class TurnToPlayResponse : global::ProtoBuf.IExtensible
+  {
+    public TurnToPlayResponse() {}
+    
+    private int _seatID;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"seatID", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"seatID", Order = 1, IsRequired = true)]
+    
+    public int seatID
+    {
+      get { return _seatID; }
+      set { _seatID = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"TurnActionRequest")]
+  [global::System.Runtime.Serialization.DataContract(Name=@"TurnActionRequest")]
+  public partial class TurnActionRequest : global::ProtoBuf.IExtensible
+  {
+    public TurnActionRequest() {}
+    
+    private int _oldX;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"oldX", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"oldX", Order = 1, IsRequired = true)]
+    
+    public int oldX
+    {
+      get { return _oldX; }
+      set { _oldX = value; }
+    }
+    private int _oldY;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"oldY", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"oldY", Order = 2, IsRequired = true)]
+    
+    public int oldY
+    {
+      get { return _oldY; }
+      set { _oldY = value; }
+    }
+    private int _newX;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"newX", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"newX", Order = 3, IsRequired = true)]
+    
+    public int newX
+    {
+      get { return _newX; }
+      set { _newX = value; }
+    }
+    private int _newY;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"newY", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"newY", Order = 4, IsRequired = true)]
+    
+    public int newY
+    {
+      get { return _newY; }
+      set { _newY = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"PlayerActionResponse")]
+  [global::System.Runtime.Serialization.DataContract(Name=@"PlayerActionResponse")]
+  public partial class PlayerActionResponse : global::ProtoBuf.IExtensible
+  {
+    public PlayerActionResponse() {}
+    
+    private int _oldX;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"oldX", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"oldX", Order = 1, IsRequired = true)]
+    
+    public int oldX
+    {
+      get { return _oldX; }
+      set { _oldX = value; }
+    }
+    private int _oldY;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"oldY", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"oldY", Order = 2, IsRequired = true)]
+    
+    public int oldY
+    {
+      get { return _oldY; }
+      set { _oldY = value; }
+    }
+    private int _newX;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"newX", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"newX", Order = 3, IsRequired = true)]
+    
+    public int newX
+    {
+      get { return _newX; }
+      set { _newX = value; }
+    }
+    private int _newY;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"newY", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.Runtime.Serialization.DataMember(Name=@"newY", Order = 4, IsRequired = true)]
+    
+    public int newY
+    {
+      get { return _newY; }
+      set { _newY = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }

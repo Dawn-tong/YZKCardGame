@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour {
 		finishCount++;
 		if (finishCount == initActions.Count) {
 			Debug.Log($"{Log.perfix}所有Manager初始化完成,运行回调函数");
-			UIMessagePanel.Instance.AddMessage("初始化完成");
+			//UIMessagePanel.Instance.AddMessage("初始化完成");
 			OnAllManagersFinishInit?.Invoke();
 			Log.ReducePerfixLength();
 			ServiceInit();

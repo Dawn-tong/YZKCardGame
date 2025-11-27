@@ -14,11 +14,11 @@ public class Log
 		//		}
 	}
 	public static void ReducePerfixLength(){
+		Debug.Log($"{perfix}½áÊø¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷");
 		if(perfixLength <= 0){
 			Debug.LogError("LogPrefix.ReducePerfixLength: perfixLength <= 0");
 			return;
 		}
-		Debug.Log($"{perfix}½áÊø¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷¡÷");
 		perfixLength--;
 		perfix = new string('\t', perfixLength);
 	}

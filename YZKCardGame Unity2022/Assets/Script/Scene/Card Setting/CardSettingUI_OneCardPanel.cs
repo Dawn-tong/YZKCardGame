@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class CardSettingUI_OneCardPanel : MonoBehaviour {
 	//≥ı ºªØ
 	CardSettingCardInfo cardInfo;
-	CardManager cardManager;
+	CardsListManager cardManager;
 	public void OnSceneEnter() {
 		cardInfo = GetComponent<CardSettingCardInfo>();
 		cardManager = PlayerManager.Instance.currentPlayer.cardManager;
@@ -155,7 +155,7 @@ public class CardSettingUI_OneCardPanel : MonoBehaviour {
 	[SerializeField] Button HpDownButton;
 	[SerializeField] Button AtkUpButton;
 	[SerializeField] Button AtkDownButton;
-	public void UpdateButtonState() {
+	void UpdateButtonState() {
 		Card card = cardInfo.Card;
 		if(card == null) {
 			if(cardManager.CalSumOfCardsLevel()< cardManager.maxTotalLevel) {

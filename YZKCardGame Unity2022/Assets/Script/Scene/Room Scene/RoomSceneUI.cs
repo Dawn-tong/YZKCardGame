@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class RoomSceneUI : MonoBehaviour {
 	public void OnSceneEnter() {
-		RoomService.Instance.UpdateUIEvent += UpdatePlayerPanelData;
+		RoomCommunicateService.Instance.UpdateUIEvent += UpdatePlayerPanelData;
 		if (NetManager.Instance.isHostPlayer) {
 			NetManager.Instance.OnCreatRoomSuccess += DisplayUI;
 			creatOrAddRoomText.text = "正在创建房间......";
@@ -16,7 +16,7 @@ public class RoomSceneUI : MonoBehaviour {
 		}
 	}
 	public void OnSceneLeave() {
-		RoomService.Instance.UpdateUIEvent -= UpdatePlayerPanelData;
+		RoomCommunicateService.Instance.UpdateUIEvent -= UpdatePlayerPanelData;
 		if (NetManager.Instance.isHostPlayer) {
 			NetManager.Instance.OnCreatRoomSuccess -= DisplayUI;
 		}
@@ -49,7 +49,7 @@ public class RoomSceneUI : MonoBehaviour {
 	public void ClickButtonToStartGame() {
 		Debug.Log("按钮 - 开始游戏");
 		SceneLoaderManager.Instance.LoadScene(Scene.GameScene);
-		RoomService.Instance.SendReadyToStartResponse();
+		RoomCommunicateService.Instance.SendReadyToStartResponse();
 	}
 	public void ClickButtonToChangeReady()
 	{
@@ -63,19 +63,19 @@ public class RoomSceneUI : MonoBehaviour {
 		}
 		UpdatePlayerPanelData();
 		if (NetManager.Instance.isHostPlayer) {
-			RoomService.Instance.SendSelfChangeReadyResponse();
+			RoomCommunicateService.Instance.SendSelfChangeReadyResponse();
 		}
 		else {
-			RoomService.Instance.SendSelfChangeReadyRequest();
+			RoomCommunicateService.Instance.SendSelfChangeReadyRequest();
 		}
 	}
 	public void ClickButtonToLeaveRoom() {
 		Debug.Log("按钮 - 离开房间");
 		if(NetManager.Instance.isHostPlayer) {
-			RoomService.Instance.SendRoomCloseResponse();
+			RoomCommunicateService.Instance.SendRoomCloseResponse();
 		}
 		else {
-			RoomService.Instance.SendLeaveRoomRequest();
+			RoomCommunicateService.Instance.SendLeaveRoomRequest();
 		}
 	}
 

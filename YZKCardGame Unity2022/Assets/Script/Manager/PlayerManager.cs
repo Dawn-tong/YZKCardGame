@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerManager : ManagerBase<PlayerManager> {
@@ -13,7 +14,7 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		currentPlayer.SetPlayerName("主机玩家");
 		currentPlayer.gameObject.name = "Current Player";
 		//加载玩家卡组
-		CardsStorageManager.Init();
+		CardsStorage.Init();
 		GameManager.FinishInit();
 	}
 
@@ -78,6 +79,15 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 		return null;
 	}
 
+	public Player FindPlayerByCornerID(CornerID cornerID) {
+		for (int i = 0; i < allPlayers.Length; i++) {
+			if (allPlayers[i] != null && allPlayers[i].cornerID == cornerID) {
+				return allPlayers[i];
+			}
+		}
+		return null;
+	}
+
 	//删除
 	public void RemovePlayerBySeatID(int seatID) {
 		if (seatID >= 0 && seatID < 4) {
@@ -131,5 +141,25 @@ public class PlayerManager : ManagerBase<PlayerManager> {
 			}
 		}
 		return count;
+	}
+	//随机获取一个玩家
+	public Player GetRandomPlayer() {
+		List<Player> players = new List<Player>();
+		for (int i = 0; i < allPlayers.Length; i++) {
+			if (allPlayers[i] != null) {
+				players.Add(allPlayers[i]);
+			}
+		}
+		return players[Random.Range(0, players.Count)];
+	}
+	//根据角落寻找下一个角落的玩家
+	public Player GetNextPlayer(Player currentPlayer) {
+		CornerID nextCornerID = (CornerID)((int)currentPlayer.cornerID % 4 + 1);
+		Player nextPlayer = null;
+		while(nextPlayer == null) {
+			nextPlayer = FindPlayerByCornerID(nextCornerID);
+			nextCornerID = (CornerID)((int)nextCornerID % 4 + 1);
+		}
+		return nextPlayer;
 	}
 }

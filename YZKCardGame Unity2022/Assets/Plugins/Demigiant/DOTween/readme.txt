@@ -12,8 +12,7 @@ If you're upgrading your project from a version of DOTween older than 1.2.000 (o
 
 // GET STARTED //////////////////////////////////////////////
 
-- After importing a new DOTween update, select DOTween's Utility Panel from the "Tools/Demigiant" menu (if it doesn't open automatically) and press the "Setup DOTween..." 
-button to activate/deactivate Modules. You can also access a Preferences Tab from there to choose default settings for DOTween.
+- After importing a new DOTween update, select DOTween's Utility Panel from the "Tools/Demigiant" menu (if it doesn't open automatically) and press the "Setup DOTween..." button to activate/deactivate Modules. You can also access a Preferences Tab from there to choose default settings for DOTween.
 - In your code, add "using DG.Tweening" to each class where you want to use DOTween.
 - You're ready to tween. Check out the links below for full documentation and license info.
 

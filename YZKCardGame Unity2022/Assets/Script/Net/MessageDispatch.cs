@@ -31,6 +31,7 @@ namespace Network {
 			if (message.playerJoinRoom != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.playerJoinRoom); success = true; }
 			if (message.changeReady != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.changeReady); success = true; }
 			if (message.playerJoinGame != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.playerJoinGame); success = true; }
+			if (message.turnAction != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.turnAction); success = true; }
 			if (!success) { 
                 Debug.LogWarning($"{Log.perfix}MessageDispatch.请求消息未分发"); 
                 UIMessagePanel.Instance.AddMessage($"请求消息未分发");    
@@ -50,7 +51,10 @@ namespace Network {
 			if (message.changeReady != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.changeReady); success = true; }
 			if (message.leaveRoom != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.leaveRoom); success = true; }
 			if (message.readyToStart != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.readyToStart); success = true; }
+			if (message.failedToJoinGame != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.failedToJoinGame); success = true; }
 			if (message.gameStart != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.gameStart); success = true; }
+			if (message.turnToPlay != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.turnToPlay); success = true; }
+			if (message.playerAction != null) { MessageDistributer<T>.Instance.RaiseEvent(sender, message.playerAction); success = true; }
 			if (!success) { 
                 Debug.LogWarning($"{Log.perfix}MessageDispatch.响应消息未分发"); 
                 UIMessagePanel.Instance.AddMessage($"响应消息未分发");    

@@ -41,6 +41,8 @@ message NetMessageRequest {
 	required ChangeReadyRequest changeReady = 2;		//改变自身的准备状态
 
 	required PlayerJoinGameRequest playerJoinGame = 3;	//回应服务器"ReadyToStart":自身的卡牌组
+
+	required TurnActionRequest turnAction = 4;			//当前回合的动作
 }
 message NetMessageResponse {
 
@@ -54,6 +56,9 @@ message NetMessageResponse {
 	required ReadyToStartResponse readyToStart = 5;		//发送游戏开始响应,等待客户端回应自己的卡牌组
 	required FailedToJoinGameResponse failedToJoinGame = 6;//检验卡牌组是否有效并通知是否成功加入
 	required GameStartResponse gameStart = 7;			//接收完所有玩家卡牌,通知所有玩家所有的卡牌组
+
+	required TurnToPlayResponse turnToPlay = 8;			//轮到哪个玩家出牌
+	required PlayerActionResponse playerAction = 9;		//这个玩家当回合执行了什么动作
 }
 
 
@@ -105,4 +110,22 @@ message FailedToJoinGameResponse {
 }
 message GameStartResponse {
 	repeated PlayerInfo playersList = 1;
+}
+
+
+
+message TurnToPlayResponse {
+	required int32 seatID = 1;
+}
+message TurnActionRequest {
+	required int32 oldX = 1;
+	required int32 oldY = 2;
+	required int32 newX = 3;
+	required int32 newY = 4;
+}
+message PlayerActionResponse {
+	required int32 oldX = 1;
+	required int32 oldY = 2;
+	required int32 newX = 3;
+	required int32 newY = 4;
 }

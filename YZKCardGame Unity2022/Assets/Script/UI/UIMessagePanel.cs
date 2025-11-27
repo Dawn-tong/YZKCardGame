@@ -45,7 +45,7 @@ public class UIMessagePanel : MonoBehaviour {
         Instance.CreateToggleButton();
         //创建滚动显示面板
         Instance.CreateScrollPanel();
-        Instance.SetPanelVisible(true);
+        Instance.SetPanelVisible(false);
 	}
     
 

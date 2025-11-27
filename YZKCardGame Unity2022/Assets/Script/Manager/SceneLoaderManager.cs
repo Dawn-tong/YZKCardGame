@@ -9,6 +9,7 @@ public enum Scene {
 	CardSetting,
 	GameScene,
 	HallScene,
+	LoadScene,
 	RoomScene,
 	RuleScene,
 	TitleScene,
